@@ -17,4 +17,5 @@ Jika bingung Bisa tanya lewat
 Facebook
 https://m.facebook.com/ariy.tool/
 
-Whatsapp
+<b>Whatsapp
+https://wa.link/d982tb
