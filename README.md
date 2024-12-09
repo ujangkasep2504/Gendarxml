@@ -1,4 +1,6 @@
-                    DEPLOY 
+           CUMA UBAH FILE 
+           wrangler.toml
+    contoh: name = "gendarxmlb" # todo
 
                     
   jika bingung kontak admin lewat
