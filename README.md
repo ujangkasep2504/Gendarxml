@@ -1,14 +1,15 @@
            CUMA UBAH FILE 
            wrangler.toml
     contoh: name = "gendarxmlb" # todo
-
-                    
-  jika bingung kontak admin lewat
-  Facebook
-  https://m.facebook.com/ariy.tool/
-
+    Selanjutnya Klik Deploy Di bawah
 
 KLIK DEPLOY
 
    [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Gendarxml/Gendarxml)
 
+Jika sudah Maka masukan ID Cloudflare Anda
+Dan juga Token Cloudflare anda
+
+Tutorial Masukan Token
+
+Klik link Tutorial
