@@ -12,4 +12,9 @@ Dan juga Token Cloudflare anda
 
 Tutorial Masukan Token
 
-Klik link Tutorial
+Jika bingung Bisa tanya lewat 
+
+Facebook
+https://m.facebook.com/ariy.tool/
+
+Whatsapp
