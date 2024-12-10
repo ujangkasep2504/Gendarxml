@@ -1,6 +1,1067 @@
-const servervless = 'vless.ari-andika.site';
-const servertrojan = 'trojan.ari-andika.site';
-const serverwildcard = 'quiz.vidio.com.ari-andika.site';
-const passuid = 'GENDAR-XXXXXX-XXX';
-const TELEGRAM_BOT_TOKEN = '7986190592:AAG6N2tK8jP5eCgV7vqSSLF42Vz-4zLak8I';
-const _0x41752e=_0x2460;(function(_0x4c2c9a,_0x4593c8){const _0x4a30c9=_0x2460,_0x4e8246=_0x4c2c9a();while(!![]){try{const _0x414b30=-parseInt(_0x4a30c9(0xf4))/0x1+parseInt(_0x4a30c9(0x139))/0x2+parseInt(_0x4a30c9(0x134))/0x3*(-parseInt(_0x4a30c9(0xdc))/0x4)+-parseInt(_0x4a30c9(0x11b))/0x5*(-parseInt(_0x4a30c9(0xc9))/0x6)+-parseInt(_0x4a30c9(0xed))/0x7*(parseInt(_0x4a30c9(0x13a))/0x8)+-parseInt(_0x4a30c9(0x103))/0x9*(parseInt(_0x4a30c9(0xd5))/0xa)+parseInt(_0x4a30c9(0xf9))/0xb;if(_0x414b30===_0x4593c8)break;else _0x4e8246['push'](_0x4e8246['shift']());}catch(_0x47c82c){_0x4e8246['push'](_0x4e8246['shift']());}}}(_0x4592,0x86727));const API_URL=_0x41752e(0x12c),WATERMARK='\x0a[Made\x20with\x20❤️\x20by\x20AriyelDlacasa\x20X\x20シ](https://t.me/AriyelDlacasa)';function _0x2460(_0x236ef6,_0x3c0052){const _0x45922c=_0x4592();return _0x2460=function(_0x246060,_0x4fbf17){_0x246060=_0x246060-0xc8;let _0x2191d7=_0x45922c[_0x246060];return _0x2191d7;},_0x2460(_0x236ef6,_0x3c0052);}async function cachePut(_0x265fa3,_0x133c9d,_0x2559be=_0x41752e(0x119)){const _0x166b78=_0x41752e,_0x4c0023=new Request(_0x166b78(0x105)+servervless+'/'+_0x2559be+'/'+_0x265fa3),_0x36f46f=new Response(JSON[_0x166b78(0x13d)](_0x133c9d),{'headers':{'Content-Type':_0x166b78(0x126),'Cache-Control':'max-age=86400'}});await caches['default'][_0x166b78(0x110)](_0x4c0023,_0x36f46f);}async function cacheGet(_0x2bc387,_0x1b3afd=_0x41752e(0x119)){const _0x211c85=_0x41752e,_0xd6d006=new Request(_0x211c85(0x105)+servervless+'/'+_0x1b3afd+'/'+_0x2bc387),_0xff032a=await caches[_0x211c85(0xee)][_0x211c85(0x13c)](_0xd6d006);if(_0xff032a)try{const _0x1bb904=await _0xff032a[_0x211c85(0x14c)]();return _0x1bb904;}catch{return null;}return null;}async function handleRequest(_0x41c145){const _0x4d9925=_0x41752e,_0x418262=new URL(_0x41c145['url']),_0x2db8b1=_0x418262[_0x4d9925(0xf6)];if(_0x2db8b1===_0x4d9925(0x13e)){const {method:_0x4df550}=_0x41c145;if(_0x4df550===_0x4d9925(0x100)){const _0x502eb4=await _0x41c145[_0x4d9925(0x14c)]();if(_0x502eb4[_0x4d9925(0x141)])return await handleCallbackQuery(_0x502eb4[_0x4d9925(0x141)]),new Response('OK',{'status':0xc8});const _0x4bdb5b=_0x502eb4['message'][_0x4d9925(0xe9)]['id'],_0x373967=_0x502eb4[_0x4d9925(0x10f)][_0x4d9925(0x122)];if(_0x373967===_0x4d9925(0xe7))await handleStartCommand(_0x4bdb5b);else{const _0x4e056b=await processMessage(_0x373967,_0x4bdb5b);await sendMessage(_0x4bdb5b,_0x4e056b);}return new Response('OK',{'status':0xc8});}return new Response(_0x4d9925(0xe5),{'status':0x195});}else{if(_0x2db8b1[_0x4d9925(0xfd)](_0x4d9925(0xef))){const _0x58a9cb=_0x2db8b1[_0x4d9925(0xc8)](_0x4d9925(0xef))[0x1];if(_0x41c145[_0x4d9925(0x138)]===_0x4d9925(0x11c)){const _0x4ce67c=await cacheGet(_0x58a9cb,'datachat');return _0x4ce67c?new Response(JSON[_0x4d9925(0x13d)](_0x4ce67c),{'headers':{'Content-Type':_0x4d9925(0x126)}}):new Response(_0x4d9925(0xe6),{'status':0x194});}else{if(_0x41c145[_0x4d9925(0x138)]===_0x4d9925(0xd4)){const _0x3b56f2=await _0x41c145[_0x4d9925(0x14c)]();return await cachePut(_0x58a9cb,_0x3b56f2,_0x4d9925(0x119)),new Response('OK',{'status':0xc8});}else return new Response(_0x4d9925(0xe5),{'status':0x195});}}else return new Response(_0x4d9925(0xe6),{'status':0x194});}}async function handleStartCommand(_0x39e1bc){const _0x24c611='\x0a┏━━━━━━━━━━━━━━━━━━━━━━━━━━┓\x0a\x20\x20🎉\x20*Welcome\x20To\x20My\x20Bot*\x20🎉\x0a┗━━━━━━━━━━━━━━━━━━━━━━━━━━┛\x0a\x0a🔍\x20*Tentang\x20Bot\x20Ini:*\x20\x20\x0aBot\x20ini\x20dirancang\x20untuk\x20membantu\x20Anda\x20memeriksa\x20informasi\x20terkait\x20IP\x20dan\x20proxy\x20Anda.\x0a\x0a✨\x20*Keunggulan*\x0a\x20\x20\x20-\x20Mudah\x20digunakan\x0a\x20\x20\x20-\x20Full\x20button\x0a\x20\x20\x20-\x20Data\x20aman\x0a\x20\x20\x20-\x20Selalu\x20update\x0a\x20\x20\x20-\x2099%\x20Free\x0a\x20\x20\x20-\x20CH\x20support\x20@November2kBio\x0a\x0a⚠️\x20*Catatan:*\x20Jika\x20terjadi\x20kendala,\x20bot\x20akan\x20menampilkan\x20pesan\x20sesuai\x20untuk\x20membantu\x20Anda\x20memperbaiki\x20kesalahan.\x0a\x0a🔹\x20*Mulailah\x20dengan\x20menekan\x20tombol\x20di\x20bawah\x20ini!*\x20🔹\x0a',_0x1a79b5={'text':_0x24c611,'replyMarkup':{'inline_keyboard':[[{'text':'Start\x20Scan','callback_data':'start_scan'}]]}};await sendMessage(_0x39e1bc,_0x1a79b5);}function isValidIP(_0xaaf363){const _0x56dfb2=_0x41752e,_0x3a2da0=/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/;return _0x3a2da0[_0x56dfb2(0x130)](_0xaaf363);}async function processMessage(_0x3cea82,_0x52255f){const _0x1310bc=_0x41752e,_0x186091=_0x3cea82[_0x1310bc(0xc8)]('\x0a');async function _0x1d46d2(_0x19bc70){const _0x488b02=_0x1310bc,_0x1e691b=_0x19bc70['split'](':'),_0x4e79c2=_0x1e691b[0x0]['trim'](),_0x1820a3=_0x1e691b[0x1]?_0x1e691b[0x1]['trim']():'443';if(!isValidIP(_0x4e79c2))return _0x488b02(0xf8);if(isNaN(_0x1820a3)||_0x1820a3<0x1||_0x1820a3>0xffff)return'🚨\x20*Port\x20Tidak\x20Valid!*\x0aPort\x20harus\x20berupa\x20angka\x20antara\x201\x20dan\x2065535.\x20Mohon\x20cek\x20kembali\x20formatnya.';const _0x2d7463=''+API_URL+_0x4e79c2+':'+_0x1820a3;try{const _0xf86257=await fetch(_0x2d7463);if(!_0xf86257['ok'])return _0x488b02(0x13b);const _0x3897b5=await _0xf86257[_0x488b02(0x14c)]();return await cachePut(_0x52255f,_0x3897b5,_0x488b02(0x119)),formatApiResponse(_0x3897b5);}catch(_0x54befa){return _0x488b02(0xdb)+_0x54befa['message'];}}for(const _0x3eeabf of _0x186091){const _0x10ea1a=await _0x1d46d2(_0x3eeabf[_0x1310bc(0x129)]());await sendMessage(_0x52255f,_0x10ea1a);}return'';}function _0x4592(){const _0x2f00d6=['match','stringify','/webhook','\x0a```\x0a*CLASH\x20TROJAN*\x0a```\x0aproxies:\x0a-\x20name:\x20','&fp=randomized&type=ws&sni=','callback_query','\x0a\x20\x20ws-opts:\x0a\x20\x20\x20\x20path:\x20/vless=','VLESS\x20🚀','```\x0a','dont_use_bug_trojan','quiz','ruangguru','www.udemy.com','&path=%2Ftrojan%3D','creativeservices.netflix.com','df.game.naver.com','json','string','asn','quiz_int','info_1','*🔥\x20Proxy\x20Aktif!\x20🔥*\x0a*Anda\x20dapat\x20membuat\x20akun\x20dengan\x20IP\x20Proxy\x20ini*','\x0a[=========TROJAN=========]\x0a*CF\x20TROJAN\x20CONFIGURATION*\x0a[=========TROJAN=========]\x0a\x0a*TROJAN\x20TLS*\x0a```\x0atrojan://','split','62904sMOfsr','proxyPort','quiz.vidio.com','vless','GUNAKAN\x20WILDCARD','proxyHost','\x0a🔍\x20*Scan\x20Dimulai!*\x20\x0a\x0a🚀\x20*Cara\x20Penggunaan:*\x0a1️⃣\x20Kirim\x20IP\x20dan\x20port\x20dengan\x20format\x20berikut:\x20`<IP>:<Port>`\x0a_(Contoh:\x20192.168.1.1:8080)_\x0a2️⃣\x20Jika\x20Anda\x20tidak\x20menyertakan\x20port,\x20bot\x20akan\x20menggunakan\x20port\x20default:\x20`443`.\x0a3️⃣\x20Setelah\x20IP\x20dikirim,\x20bot\x20ini\x20akan\x20memberikan\x20informasi\x20terperinci\x20mengenai\x20IP\x20Anda.\x0a\x0a🌐\x20*Pilihan\x20Proxy:*\x0aSetelah\x20pemeriksaan\x20selesai,\x20jika\x20IP\x20yang\x20Anda\x20masukkan\x20berstatus\x20Proxy\x20ALIVE\x20maka\x20bot\x20akan\x20memberikan\x20pilihan\x20membuat\x20akun\x20dengan\x20salah\x20satu\x20protokol\x20berikut:\x0a-\x20VLESS\x20⚡\x0a-\x20TROJAN\x20🛡️\x0a','VLESS','🚨\x20*Data\x20Anda\x20Dalam\x20Database\x20Tidak\x20Ditemukan/Telah\x20Kadaluarsa*\x0aSilakan\x20kirim\x20ulang\x20IP\x20Anda.','message_id','map','PUT','3222740VirtiH','\x0a\x20\x20udp:\x20true\x0a```','quiz.int.vidio.com','\x0a```\x0a*CLASH\x20VLESS*\x0a```\x0aproxies:\x0a-\x20name:\x20','\x0a\x20\x20cipher:\x20auto\x0a\x20\x20tls:\x20true\x0a\x20\x20skip-cert-verify:\x20true\x0a\x20\x20network:\x20ws\x0a\x20\x20servername:\x20','*Apakah\x20Anda\x20ingin\x20menggunakan\x20wildcard?*','🚨\x20*Terjadi\x20Kesalahan\x20saat\x20Mengambil\x20Data!*\x20Pesan\x20kesalahan:\x20','4yCKbzt','vless_','%20','udemy','live','TROJAN','includes','support.zoom.us','\x0a🛡️\x20Status\x20Proxy:\x20','Method\x20Not\x20Allowed','Not\x20Found','/start','zaintest','chat','&security=none&encryption=none&host=','beta.zoom.us','cache','84QyJaLU','default','/datachat/','trojan','&fp=randomized&type=ws&host=','data.mt','\x0a\x20\x20server:\x20','378924LePlmr','live.iflix.com','pathname','io.ruangguru.com','🚨\x20*Oops!\x20Terjadi\x20Kesalahan*\x20🚨\x0a━━━━━━━━━━━━━━━━━━━━━━\x0a\x0a💡\x20*Penyebab\x20Kemungkinan:*\x0a-\x20Anda\x20memasukkan\x20teks\x20yang\x20bukan\x20format\x20dari\x20IP\x0a-\x20Format\x20IP\x20atau\x20port\x20yang\x20Anda\x20masukkan\x20salah\x0a-\x20Koneksi\x20internet\x20terputus\x0a-\x20Server\x20mungkin\x20sedang\x20dalam\x20perbaikan\x0a\x0a📌\x20*Pastikan\x20Format\x20yang\x20Benar:*\x0a-\x20Format:\x20`<IP>:<Port>`\x0a-\x20Contoh:\x20`192.168.1.1:8080`\x0a\x0a🔄\x20*Coba\x20Lagi:*\x20Pastikan\x20Anda\x20memasukkan\x20format\x20dengan\x20benar\x20dan\x20kirim\x20ulang\x20pesan.\x0a\x0aJika\x20masalah\x20masih\x20berlanjut,\x20silakan\x20hubungi\x20pemilik\x20bot\x20ini\x20untuk\x20bantuan\x20lebih\x20lanjut.\x0a━━━━━━━━━━━━━━━━━━━━━━','16246736MWEvPy','dont_use_bug_','KEMBALI','ava','startsWith','investors','\x0a\x20\x20port:\x20443\x0a\x20\x20type:\x20vless\x0a\x20\x20uuid:\x20','POST','JANGAN\x20GUNAKAN','ava.game.naver.com','27AvdOgt','%3D','https://','*Pilih\x20salah\x20satu\x20wildcard\x20untuk\x20','trojan_','&path=%2Fvless%3D','back_to_protocol_menu','request','\x0a📡\x20ISP\x20\x20\x20\x20\x20\x20\x20\x20\x20:\x20','\x0a```\x0a*VLESS\x20NTLS*\x0a```\x0avless://','isp','\x0a\x20\x20\x20\x20headers:\x0a\x20\x20\x20\x20\x20\x20Host:\x20','message','put','replyMarkup','graph.instagram.com',':80?path=%2Fvless%3D','proxyStatus','\x0a🏙️\x20Kota\x20\x20\x20\x20\x20\x20\x20\x20:\x20','delay',':80?path=%2Ftrojan%3D','info_2','datachat','\x0a🛠️\x20Origin\x20IP\x20\x20\x20:\x20','160LCLIky','GET','cache.netflix.com','\x0a```\x0a*TROJAN\x20NTLS*\x0a```\x0atrojan://','\x0a🚪\x20Proxy\x20Port\x20\x20:\x20','https://api.telegram.org/bot','\x0a[=========VLESS=========]\x0a*CF\x20VLESS\x20CONFIGURATION*\x0a[=========VLESS=========]\x0a\x0a*VLESS\x20TLS*\x0a```\x0avless://','text','dont_use_bug_vless','\x0a\x20\x20port:\x20443\x0a\x20\x20type:\x20trojan\x0a\x20\x20password:\x20','flag','application/json','investors.spotify.com','data','trim','use_bug_trojan','\x0a\x20\x20skip-cert-verify:\x20true\x0a\x20\x20network:\x20ws\x0a\x20\x20sni:\x20','https://apix.sonzaix.us.kg/?ip=','beta','\x0a⏱️\x20Delay\x20\x20\x20\x20\x20\x20\x20:\x20','Markdown','test','🌐\x20*Pilih\x20Protokol\x20yang\x20Ingin\x20Digunakan:*\x0a*Silakan\x20pilih\x20salah\x20satu\x20protokol\x20di\x20bawah\x20ini\x20untuk\x20melanjutkan.*','\x0a\x20\x20ws-opts:\x0a\x20\x20\x20\x20path:\x20/trojan=',':443?encryption=none&security=tls&sni=','1671864nrKJHq','respondWith','use_bug_vless','TROJAN\x20⚔️','method','1741866AVtLdk','153112AjDGjJ','🚨\x20*Kesalahan\x20API!*\x0aTidak\x20dapat\x20mengambil\x20data\x20dari\x20API.\x20Pastikan\x20IP\x20yang\x20Anda\x20berikan\x20valid.'];_0x4592=function(){return _0x2f00d6;};return _0x4592();}function formatApiResponse(_0x9b6d4a){const _0x3c56c2=_0x41752e;let _0x3453e9='\x0a🛰️\x20**Informasi\x20Alamat\x20IP**\x20🛰️\x0a```\x0a🌐\x20Proxy\x20Host\x20\x20:\x20'+_0x9b6d4a['proxyHost']+_0x3c56c2(0x11f)+_0x9b6d4a[_0x3c56c2(0xca)]+_0x3c56c2(0x11a)+_0x9b6d4a['OriginIp']+_0x3c56c2(0x10b)+_0x9b6d4a['isp']+'\x0a🌍\x20Negara\x20\x20\x20\x20\x20\x20:\x20'+_0x9b6d4a[_0x3c56c2(0x10d)]+'\x20'+_0x9b6d4a['flag']+_0x3c56c2(0x115)+_0x9b6d4a['city']+'\x0a🔗\x20ASN\x20\x20\x20\x20\x20\x20\x20\x20\x20:\x20'+_0x9b6d4a[_0x3c56c2(0x14e)]+_0x3c56c2(0xe4)+_0x9b6d4a[_0x3c56c2(0x114)]+_0x3c56c2(0x12e)+_0x9b6d4a[_0x3c56c2(0x116)]+_0x3c56c2(0x144);if(_0x9b6d4a[_0x3c56c2(0x114)][_0x3c56c2(0xe2)]('✅\x20ALIVE\x20✅'))return _0x3453e9+=_0x3c56c2(0x151),{'text':_0x3453e9,'replyMarkup':{'inline_keyboard':[[{'text':_0x3c56c2(0x143),'callback_data':_0x3c56c2(0x150)},{'text':_0x3c56c2(0x137),'callback_data':_0x3c56c2(0x118)}]]}};return _0x3453e9;}async function sendMessage(_0x13c0bc,_0x5a4b41){const _0x30f47f=_0x41752e,_0x47ec96=_0x30f47f(0x120)+TELEGRAM_BOT_TOKEN+'/sendMessage';let _0x20c9dc='';if(typeof _0x5a4b41===_0x30f47f(0x14d))_0x20c9dc=_0x5a4b41;else _0x5a4b41[_0x30f47f(0x122)]?_0x20c9dc=_0x5a4b41['text']:_0x20c9dc=JSON[_0x30f47f(0x13d)](_0x5a4b41);_0x5a4b41['replyMarkup']&&(_0x20c9dc+=WATERMARK);const _0x3320bf={'chat_id':_0x13c0bc,'text':_0x20c9dc,'parse_mode':'Markdown','reply_markup':_0x5a4b41[_0x30f47f(0x111)]?JSON[_0x30f47f(0x13d)](_0x5a4b41['replyMarkup']):undefined};await fetch(_0x47ec96,{'method':'POST','headers':{'Content-Type':_0x30f47f(0x126)},'body':JSON[_0x30f47f(0x13d)](_0x3320bf)});}async function editMessage(_0x1c6da2,_0x1a33a5,_0x516ff0){const _0x5ac757=_0x41752e,_0x21d3ce=_0x5ac757(0x120)+TELEGRAM_BOT_TOKEN+'/editMessageText';let _0x11610b='';if(typeof _0x516ff0===_0x5ac757(0x14d))_0x11610b=_0x516ff0+WATERMARK;else _0x516ff0[_0x5ac757(0x122)]?_0x11610b=_0x516ff0['text']+WATERMARK:_0x11610b=JSON['stringify'](_0x516ff0)+WATERMARK;const _0x92fd58={'chat_id':_0x1c6da2,'message_id':_0x1a33a5,'text':_0x11610b,'parse_mode':_0x5ac757(0x12f),'reply_markup':_0x516ff0[_0x5ac757(0x111)]?JSON[_0x5ac757(0x13d)](_0x516ff0[_0x5ac757(0x111)]):undefined};await fetch(_0x21d3ce,{'method':_0x5ac757(0x100),'headers':{'Content-Type':'application/json'},'body':JSON[_0x5ac757(0x13d)](_0x92fd58)});}async function handleCallbackQuery(_0x4f6daa){const _0x524b39=_0x41752e,_0x2c8d06=_0x4f6daa[_0x524b39(0x10f)][_0x524b39(0xe9)]['id'],_0x2cc827=_0x4f6daa[_0x524b39(0x128)],_0x4b6479=await cacheGet(_0x2c8d06,_0x524b39(0x119));if(!_0x4b6479)return sendMessage(_0x2c8d06,_0x524b39(0xd1));if(_0x2cc827==='start_scan'){const _0x5d750f=_0x524b39(0xcf);await editMessage(_0x2c8d06,_0x4f6daa[_0x524b39(0x10f)]['message_id'],_0x5d750f);return;}const _0x320876=_0x4b6479;let _0x4189ab;if(_0x2cc827==='info_1'){const _0x3840c4=encodeURIComponent(_0x320876[_0x524b39(0x10d)]);_0x4189ab=_0x524b39(0x121)+passuid+'@'+servervless+':443?encryption=none&security=tls&sni='+servervless+_0x524b39(0xf1)+servervless+_0x524b39(0x108)+_0x320876[_0x524b39(0xce)]+'%3D'+_0x320876[_0x524b39(0xca)]+'#'+_0x3840c4+_0x524b39(0xde)+_0x320876[_0x524b39(0x125)]+_0x524b39(0x10c)+passuid+'@'+servervless+':80?path=%2Fvless%3D'+_0x320876[_0x524b39(0xce)]+'%3D'+_0x320876['proxyPort']+'&security=none&encryption=none&host='+servervless+_0x524b39(0x140)+servervless+'#'+_0x3840c4+_0x524b39(0xde)+_0x320876[_0x524b39(0x125)]+_0x524b39(0xd8)+_0x320876[_0x524b39(0x10d)]+'\x20'+_0x320876[_0x524b39(0x125)]+_0x524b39(0xf3)+servervless+_0x524b39(0xff)+passuid+_0x524b39(0xd9)+servervless+_0x524b39(0x142)+_0x320876['proxyHost']+'='+_0x320876[_0x524b39(0xca)]+_0x524b39(0x10e)+servervless+_0x524b39(0xd6),await editMessage(_0x2c8d06,_0x4f6daa[_0x524b39(0x10f)][_0x524b39(0xd2)],{'text':_0x524b39(0xda),'replyMarkup':{'inline_keyboard':[[{'text':_0x524b39(0xcd),'callback_data':_0x524b39(0x136)},{'text':_0x524b39(0x101),'callback_data':_0x524b39(0x123)}],[{'text':_0x524b39(0xfb),'callback_data':_0x524b39(0x109)}]]}});}else{if(_0x2cc827==='info_2'){const _0x262d41=encodeURIComponent(_0x320876['isp']);_0x4189ab=_0x524b39(0x152)+passuid+'@'+servertrojan+_0x524b39(0x133)+servertrojan+_0x524b39(0xf1)+servertrojan+'&path=%2Ftrojan%3D'+_0x320876[_0x524b39(0xce)]+_0x524b39(0x104)+_0x320876[_0x524b39(0xca)]+'#'+_0x262d41+_0x524b39(0xde)+_0x320876[_0x524b39(0x125)]+_0x524b39(0x11e)+passuid+'@'+servertrojan+_0x524b39(0x117)+_0x320876[_0x524b39(0xce)]+'%3D'+_0x320876[_0x524b39(0xca)]+_0x524b39(0xea)+servertrojan+_0x524b39(0x140)+servertrojan+'#'+_0x262d41+_0x524b39(0xde)+_0x320876[_0x524b39(0x125)]+_0x524b39(0x13f)+_0x320876[_0x524b39(0x10d)]+'\x20'+_0x320876[_0x524b39(0x125)]+_0x524b39(0xf3)+servertrojan+_0x524b39(0x124)+passuid+_0x524b39(0x12b)+servertrojan+_0x524b39(0x132)+_0x320876[_0x524b39(0xce)]+'='+_0x320876[_0x524b39(0xca)]+_0x524b39(0x10e)+servertrojan+_0x524b39(0xd6),await editMessage(_0x2c8d06,_0x4f6daa[_0x524b39(0x10f)][_0x524b39(0xd2)],{'text':_0x524b39(0xda),'replyMarkup':{'inline_keyboard':[[{'text':_0x524b39(0xcd),'callback_data':_0x524b39(0x12a)},{'text':_0x524b39(0x101),'callback_data':_0x524b39(0x145)}],[{'text':_0x524b39(0xfb),'callback_data':_0x524b39(0x109)}]]}});}else{if(_0x2cc827[_0x524b39(0xfd)]('use_bug_')){const _0x275e7f=_0x2cc827==='use_bug_vless'?'vless':_0x524b39(0xf0),_0x4825a7=[{'text':_0x524b39(0x102),'value':_0x524b39(0xfc)},{'text':_0x524b39(0x14b),'value':'df'},{'text':_0x524b39(0xcb),'value':_0x524b39(0x146)},{'text':'quiz.int.vidio.com','value':_0x524b39(0x14f)},{'text':'graph.instagram.com','value':'graph'},{'text':_0x524b39(0x127),'value':_0x524b39(0xfe)},{'text':_0x524b39(0x11d),'value':_0x524b39(0xec)},{'text':_0x524b39(0x14a),'value':'creative'},{'text':_0x524b39(0xe3),'value':'support'},{'text':'zaintest.vuclip.com','value':_0x524b39(0xe8)},{'text':_0x524b39(0xf5),'value':_0x524b39(0xe0)},{'text':_0x524b39(0xf7),'value':_0x524b39(0x147)},{'text':_0x524b39(0xf2),'value':_0x524b39(0x128)},{'text':_0x524b39(0x148),'value':_0x524b39(0xdf)},{'text':_0x524b39(0xeb),'value':_0x524b39(0x12d)}];await editMessage(_0x2c8d06,_0x4f6daa[_0x524b39(0x10f)][_0x524b39(0xd2)],{'text':_0x524b39(0x106)+_0x275e7f['toUpperCase']()+':*','replyMarkup':{'inline_keyboard':[..._0x4825a7[_0x524b39(0xd3)](_0x4c1dd7=>[{'text':_0x4c1dd7['text'],'callback_data':_0x275e7f+'_'+_0x4c1dd7['value']}]),[{'text':_0x524b39(0xfb),'callback_data':_0x524b39(0x109)}]]}});}else{if(_0x2cc827['startsWith'](_0x524b39(0xfa))){let _0x10f4b6;const _0x2f8bbe=_0x2cc827===_0x524b39(0x123)?_0x524b39(0xd0):_0x524b39(0xe1),_0x404ddc=encodeURIComponent(_0x320876[_0x524b39(0x10d)]);_0x2f8bbe==='VLESS'?_0x10f4b6=_0x524b39(0x121)+passuid+'@'+servervless+_0x524b39(0x133)+servervless+_0x524b39(0xf1)+servervless+_0x524b39(0x108)+_0x320876['proxyHost']+_0x524b39(0x104)+_0x320876[_0x524b39(0xca)]+'#'+_0x404ddc+'%20'+_0x320876['flag']+_0x524b39(0x10c)+passuid+'@'+servervless+':80?path=%2Fvless%3D'+_0x320876['proxyHost']+_0x524b39(0x104)+_0x320876[_0x524b39(0xca)]+_0x524b39(0xea)+servervless+'&fp=randomized&type=ws&sni='+servervless+'#'+_0x404ddc+_0x524b39(0xde)+_0x320876[_0x524b39(0x125)]+'\x0a```\x0a*CLASH\x20VLESS*\x0a```\x0aproxies:\x0a-\x20name:\x20'+_0x320876['isp']+'\x20'+_0x320876[_0x524b39(0x125)]+'\x0a\x20\x20server:\x20'+servervless+_0x524b39(0xff)+passuid+_0x524b39(0xd9)+servervless+_0x524b39(0x142)+_0x320876[_0x524b39(0xce)]+'='+_0x320876[_0x524b39(0xca)]+_0x524b39(0x10e)+servervless+_0x524b39(0xd6):_0x10f4b6='\x0a[=========TROJAN=========]\x0a*CF\x20TROJAN\x20CONFIGURATION*\x0a[=========TROJAN=========]\x0a\x0a*TROJAN\x20TLS*\x0a```\x0atrojan://'+passuid+'@'+servertrojan+':443?encryption=none&security=tls&sni='+servertrojan+_0x524b39(0xf1)+servertrojan+_0x524b39(0x149)+_0x320876['proxyHost']+_0x524b39(0x104)+_0x320876[_0x524b39(0xca)]+'#'+_0x404ddc+_0x524b39(0xde)+_0x320876[_0x524b39(0x125)]+'\x0a```\x0a*TROJAN\x20NTLS*\x0a```\x0atrojan://'+passuid+'@'+servertrojan+_0x524b39(0x117)+_0x320876['proxyHost']+'%3D'+_0x320876['proxyPort']+_0x524b39(0xea)+servertrojan+_0x524b39(0x140)+servertrojan+'#'+_0x404ddc+_0x524b39(0xde)+_0x320876['flag']+_0x524b39(0x13f)+_0x320876[_0x524b39(0x10d)]+'\x20'+_0x320876['flag']+_0x524b39(0xf3)+servertrojan+_0x524b39(0x124)+passuid+_0x524b39(0x12b)+servertrojan+_0x524b39(0x132)+_0x320876[_0x524b39(0xce)]+'='+_0x320876[_0x524b39(0xca)]+'\x0a\x20\x20\x20\x20headers:\x0a\x20\x20\x20\x20\x20\x20Host:\x20'+servertrojan+_0x524b39(0xd6),await editMessage(_0x2c8d06,_0x4f6daa[_0x524b39(0x10f)][_0x524b39(0xd2)],{'text':_0x10f4b6,'replyMarkup':{'inline_keyboard':[[{'text':_0x524b39(0xfb),'callback_data':_0x524b39(0x109)}]]}});}else{if(_0x2cc827===_0x524b39(0x109))await editMessage(_0x2c8d06,_0x4f6daa[_0x524b39(0x10f)][_0x524b39(0xd2)],{'text':_0x524b39(0x131),'replyMarkup':{'inline_keyboard':[[{'text':_0x524b39(0xd0),'callback_data':_0x524b39(0x150)},{'text':_0x524b39(0xe1),'callback_data':'info_2'}]]}});else{if(_0x2cc827['startsWith'](_0x524b39(0xdd))||_0x2cc827[_0x524b39(0xfd)](_0x524b39(0x107))){const _0x2907ea=_0x2cc827[_0x524b39(0xfd)](_0x524b39(0xcc))?'VLESS':_0x524b39(0xe1),_0x39062d=_0x2cc827['split']('_')[0x1],_0x397296={'ava':'ava.game.naver.com','df':_0x524b39(0x14b),'quiz':'quiz.vidio.com','quiz_int':_0x524b39(0xd7),'graph':_0x524b39(0x112),'investors':_0x524b39(0x127),'cache':'cache.netflix.com','creative':_0x524b39(0x14a),'support':_0x524b39(0xe3),'zaintest':'zaintest.vuclip.com','live':_0x524b39(0xf5),'ruangguru':'io.ruangguru.com','data':_0x524b39(0xf2),'udemy':_0x524b39(0x148),'beta':'beta.zoom.us'},_0x27396f=_0x397296[_0x39062d],_0x272e3a=encodeURIComponent(_0x320876[_0x524b39(0x10d)]),_0x4baf5b=_0x27396f+'.'+serverwildcard;let _0x2656dc='';if(_0x2907ea==='VLESS')_0x2656dc='\x0a[=========VLESS=========]\x0a*CF\x20VLESS\x20CONFIGURATION*\x0a[=========VLESS=========]\x0a\x0a*VLESS\x20TLS*\x0a```\x0avless://'+passuid+'@'+_0x27396f+_0x524b39(0x133)+_0x4baf5b+_0x524b39(0xf1)+_0x4baf5b+'&path=%2Fvless%3D'+_0x320876[_0x524b39(0xce)]+_0x524b39(0x104)+_0x320876[_0x524b39(0xca)]+'#'+_0x272e3a+_0x524b39(0xde)+_0x320876[_0x524b39(0x125)]+_0x524b39(0x10c)+passuid+'@'+_0x27396f+_0x524b39(0x113)+_0x320876[_0x524b39(0xce)]+_0x524b39(0x104)+_0x320876[_0x524b39(0xca)]+_0x524b39(0xea)+_0x4baf5b+'&fp=randomized&type=ws&sni='+_0x4baf5b+'#'+_0x272e3a+_0x524b39(0xde)+_0x320876[_0x524b39(0x125)]+_0x524b39(0xd8)+_0x320876[_0x524b39(0x10d)]+'\x20'+_0x320876['flag']+_0x524b39(0xf3)+_0x27396f+_0x524b39(0xff)+passuid+_0x524b39(0xd9)+_0x4baf5b+_0x524b39(0x142)+_0x320876[_0x524b39(0xce)]+'='+_0x320876[_0x524b39(0xca)]+_0x524b39(0x10e)+_0x4baf5b+_0x524b39(0xd6);else _0x2907ea===_0x524b39(0xe1)&&(_0x2656dc=_0x524b39(0x152)+passuid+'@'+_0x27396f+_0x524b39(0x133)+_0x4baf5b+_0x524b39(0xf1)+_0x4baf5b+_0x524b39(0x149)+_0x320876['proxyHost']+_0x524b39(0x104)+_0x320876[_0x524b39(0xca)]+'#'+_0x272e3a+_0x524b39(0xde)+_0x320876[_0x524b39(0x125)]+_0x524b39(0x11e)+passuid+'@'+_0x27396f+_0x524b39(0x117)+_0x320876[_0x524b39(0xce)]+_0x524b39(0x104)+_0x320876['proxyPort']+'&security=none&encryption=none&host='+_0x4baf5b+_0x524b39(0x140)+_0x4baf5b+'#'+_0x272e3a+_0x524b39(0xde)+_0x320876[_0x524b39(0x125)]+_0x524b39(0x13f)+_0x320876[_0x524b39(0x10d)]+'\x20'+_0x320876[_0x524b39(0x125)]+_0x524b39(0xf3)+_0x27396f+_0x524b39(0x124)+passuid+_0x524b39(0x12b)+_0x4baf5b+_0x524b39(0x132)+_0x320876[_0x524b39(0xce)]+'='+_0x320876[_0x524b39(0xca)]+_0x524b39(0x10e)+_0x4baf5b+_0x524b39(0xd6));await editMessage(_0x2c8d06,_0x4f6daa['message'][_0x524b39(0xd2)],{'text':_0x2656dc,'replyMarkup':{'inline_keyboard':[[{'text':_0x524b39(0xfb),'callback_data':_0x524b39(0x109)}]]}});}}}}}}}addEventListener('fetch',_0x3f2549=>{const _0xec21d8=_0x41752e;_0x3f2549[_0xec21d8(0x135)](handleRequest(_0x3f2549[_0xec21d8(0x10a)]));});
+import { connect } from "cloudflare:sockets";
+
+let proxyIP;
+let proxyPort;
+
+var worker_default = {
+  async fetch(request, env, ctx) {
+    try {
+      // Parse the list of proxies from the environment variable
+      const listProxy = (env.LIST_IP_PORT || "")
+        .split("\n")
+        .filter(Boolean)
+        .map(entry => {
+          const [proxyIP, proxyPort, country, isp] = entry.split(",");
+          return {
+            proxyIP: proxyIP || "Unknown",
+            proxyPort: proxyPort || "Unknown",
+            country: country || "Unknown",
+            isp: isp || "Unknown ISP"
+          };
+        });
+
+      const upgradeHeader = request.headers.get("Upgrade");
+      const url = new URL(request.url);
+
+      if (upgradeHeader === "websocket") {
+        if (url.pathname.includes("/vl=")) {
+          proxyIP = url.pathname.split("vl=")[1];
+          return await vlessOverWSHandler(request);
+        } else if (url.pathname.includes("/tr=")) {
+          proxyIP = url.pathname.split("tr=")[1];
+          return await trojanOverWSHandler(request);
+        } else {
+          proxyIP = "cdn.xn--b6gac.eu.org";
+          return await vlessOverWSHandler(request);
+        }
+      }
+
+      const allConfig = await getAllConfigVless(env, request.headers.get("Host"), listProxy);
+
+      return new Response(allConfig, {
+        status: 200,
+        headers: { "Content-Type": "text/html;charset=utf-8" }
+      });
+    } catch (err) {
+      return new Response(`An error occurred: ${err.toString()}`, {
+        status: 500
+      });
+    }
+  }
+}
+async function getAllConfigVless(env, hostName, listProxy) {
+  const listProxyElements = listProxy
+    .map(({ proxyIP, proxyPort, country, isp }, index) => {
+      const vlessTls = `vless://${generateUUIDv4()}@masukan.bug.ws:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Fvl%3D${proxyIP}%3D${proxyPort}#(${country}) ${isp}`;
+      const vlessNtls = `vless://${generateUUIDv4()}@masukan.bug.ws:80?path=%2Fvl%3D${proxyIP}%3D${proxyPort}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#(${country}) ${isp}`;
+      const trojanTls = `trojan://${generatePASSWD()}@masukan.bug.ws:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Ftr%3D${proxyIP}%3D${proxyPort}#(${country}) ${isp}`;
+      const trojanNtls = `trojan://${generatePASSWD()}@masukan.bug.ws:80?path=%2Ftr%3D${proxyIP}%3D${proxyPort}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#(${country}) ${isp}`;
+
+      return `
+        <div class="content ${index === 0 ? "active" : ""}">
+          <h2>VLESS & TROJAN CLOUDFLARE</h2><br>
+          <h2>Free and Unlimited</h2><br>
+          <hr class="config-divider"/>
+          <center><h1>${country} (${isp})</h1></center>
+          <center><h1>${proxyIP}:${proxyPort}</h1></center>
+          <hr class="config-divider" />
+          <h2>VLESS</h2>
+          <pre>${vlessTls}</pre>
+          <button onclick="copyToClipboard('${vlessTls}')">Copy Vless TLS</button>
+          <pre>${vlessNtls}</pre>
+          <button onclick="copyToClipboard('${vlessNtls}')">Copy Vless N-TLS</button>
+          <hr class="config-divider" />
+          <h2>TROJAN</h2>
+          <pre>${trojanTls}</pre>
+          <button onclick="copyToClipboard('${trojanTls}')">Copy Trojan TLS</button>
+          <pre>${trojanNtls}</pre>
+          <button onclick="copyToClipboard('${trojanNtls}')">Copy Trojan N-TLS</button>
+          <hr class="config-divider" />
+        </div>`;
+    })
+    .join("");
+
+  return `
+    <html>
+      <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Vless | AFRCloud | CloudFlare</title>
+    <meta name="description" content="Akun Vless Gratis.">
+    <meta name="keywords" content="AFRCloud, Vless Gratis, Free Vless, Vless CF, Trojan CF, Cloudflare">
+    <meta name="author" content="AFRCloud">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph Meta Tags untuk SEO Media Sosial -->
+    <meta property="og:title" content="Akun Vless Gratis - Akun Vless Cloudflare">
+    <meta property="og:description" content="AFRCloud, Vless Gratis, Free Vless, Vless CF, Trojan CF, Cloudflare.">
+    <meta property="og:image" content="https://img.freepik.com/free-photo/painting-mountain-lake-with-mountain-background_188544-9126.jpg"> <!-- Ganti dengan URL gambar yang sesuai -->
+    <meta property="og:url" content="https://img.freepik.com/free-photo/painting-mountain-lake-with-mountain-background_188544-9126.jpg">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Akun Vless Gratis - Akun Vless Cloudflare">
+    <meta name="twitter:description" content="AFRCloud, Vless Gratis, Free Vless, Vless CF, Trojan CF, Cloudflare.">
+    <meta name="twitter:image" content="https://img.freepik.com/free-photo/painting-mountain-lake-with-mountain-background_188544-9126.jpg"> <!-- Ganti dengan URL gambar yang sesuai -->
+        <style>
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-color: #1a1a1a;
+    font-family: 'Roboto', Arial, sans-serif;
+    margin: 0;
+  }
+  body {
+    display: flex;
+    background: url('https://raw.githubusercontent.com/bitzblack/ip/refs/heads/main/shubham-dhage-5LQ_h5cXB6U-unsplash.jpg') no-repeat center center fixed;
+    background-size: cover;
+    justify-content: center;
+    align-items: center;
+  }
+  .popup {
+    width: 100vw;
+    height: 90vh;
+    border-radius: 15px;
+    background-color: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(8px);
+    display: grid;
+    grid-template-columns: 1.5fr 3fr;
+    box-shadow: 0px 10px 20px rgba(255, 223, 0, 0.5); /* Efek kuning */
+    overflow: hidden;
+    animation: popupEffect 1s ease-in-out;
+  }
+  @keyframes popupEffect {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .tabs {
+    background-color: #2a2a2a;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-right: 2px solid #FFD700; /* Warna kuning */
+    box-shadow: inset 0 0 10px rgba(255, 223, 0, 0.3); /* Glow kuning */
+  }
+  .author-link {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-weight: bold;
+    font-style: italic;
+    color: #FFD700; /* Warna kuning */
+    font-size: 12px;
+    text-decoration: none;
+    z-index: 10;
+  }
+  .author-link:hover {
+    color: #FFF700; /* Kuning lebih terang */
+    text-shadow: 0px 0px 10px rgba(255, 223, 0, 0.7);
+  }
+  label {
+    font-size: 12px;
+    cursor: pointer;
+    color: #FFD700; /* Warna kuning */
+    padding: 10px;
+    background-color: #333;
+    border-radius: 8px;
+    text-align: left;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0px 4px 6px rgba(255, 223, 0, 0.3); /* Glow kuning */
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+  label:hover {
+    background-color: #FFD700; /* Kuning */
+    color: #111;
+    transform: translateY(-3px);
+    box-shadow: 0px 8px 12px rgba(255, 223, 0, 0.7);
+  }
+  input[type="radio"] {
+    display: none;
+  }
+  .tab-content {
+    padding: 20px;
+    overflow-y: auto;
+    color: #FFFACD; /* Kuning pucat */
+    font-size: 14px;
+    background-color: #222;
+    height: 100%;
+    box-sizing: border-box;
+    border-radius: 10px;
+    box-shadow: inset 0 0 20px rgba(255, 223, 0, 0.2);
+  }
+  .content {
+    display: none;
+    padding-right: 15px;
+  }
+  .content.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  h1 {
+    font-size: 18px;
+    color: #FFD700; /* Kuning */
+    margin-bottom: 10px;
+    text-shadow: 0px 0px 10px rgba(255, 223, 0, 0.5);
+  }
+  h2 {
+    font-size: 22px;
+    color: #FFD700; /* Kuning */
+    text-align: center;
+    text-shadow: 0px 0px 15px rgba(255, 223, 0, 0.7);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 8px;
+  }
+  pre {
+    background-color: rgba(50, 50, 50, 0.8);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: #FFD700; /* Kuning */
+    border: 1px solid #FFD700;
+    box-shadow: 0px 4px 8px rgba(255, 223, 0, 0.4);
+  }
+  .config-divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #FFD700, transparent);
+    margin: 40px 0;
+  }
+  .config-description {
+    font-weight: bold;
+    font-style: italic;
+    color: #FFD700; /* Kuning */
+    font-size: 14px;
+    text-align: justify;
+    margin: 0 10px; /* Tambahkan margin kiri-kanan agar tidak terlalu mepet */
+  }
+  button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: #FFD700;
+    color: #111;
+    cursor: pointer;
+    font-weight: bold;
+    display: block;
+    text-align: left;
+    box-shadow: 0px 4px 6px rgba(255, 223, 0, 0.5);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  button:hover {
+    background-color: #FFF700; /* Kuning lebih terang */
+    transform: translateY(-3px);
+    box-shadow: 0px 8px 12px rgba(255, 223, 0, 0.8);
+  }
+  #search {
+    background: #333;
+    color: #FFD700;
+    border: 1px solid #FFD700;
+    border-radius: 6px;
+    padding: 5px;
+    margin-bottom: 10px;
+    width: 100%;
+    box-shadow: 0px 0px 10px rgba(255, 223, 0, 0.3);
+  }
+  #search::placeholder {
+    color: #FFD700;
+  }
+  .watermark {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .watermark a {
+    color: #e74c3c; /* Red */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+  .watermark a:hover {
+    color: #e74c3c; /* Red */
+}
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 32px; }
+    .config-section h3 { font-size: 24px; }
+    .config-block h4 { font-size: 20px; }
+  }
+</style>
+      </head>
+      <body>
+        <div class="popup">
+          <div class="tabs">
+            <input type="text" id="search" placeholder="Search by Country" oninput="filterTabs()">
+            ${listProxy
+              .map(
+                ({ country, isp }, index) => `
+                  <input type="radio" id="tab${index}" name="tab" ${index === 0 ? "checked" : ""}>
+                  <label for="tab${index}" class="tab-label" data-country="${country.toLowerCase()}">${country} - ${isp}</label>
+                `
+              )
+              .join("")}
+          </div>
+          <div class="tab-content">${listProxyElements}</div>
+          <a href="https://t.me/Noir7R" class="watermark" target="_blank">@Noir7R</a>
+        </div>
+        <script>
+          function filterTabs() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const labels = document.querySelectorAll('.tab-label');
+            labels.forEach(label => {
+              const isVisible = label.dataset.country.includes(query);
+              label.style.display = isVisible ? "block" : "none";
+            });
+          }
+
+          function copyToClipboard(text) {
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          displayAlert("Successfully copied to clipboard!", '#FFD700');
+        })
+        .catch((err) => {
+          displayAlert("Failed to copy to clipboard: " + err, '#cc2222');
+        });
+    }
+    function displayAlert(message, backgroundColor) {
+      const alertBox = document.createElement('div');
+      alertBox.textContent = message;
+      Object.assign(alertBox.style, {
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: backgroundColor,
+          color: '#222',
+          padding: '5px 10px',
+          borderRadius: '5px',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
+          opacity: '0',
+          transition: 'opacity 0.5s ease-in-out',
+          zIndex: '1000'
+      });
+      document.body.appendChild(alertBox);
+
+      requestAnimationFrame(() => {
+          alertBox.style.opacity = '1';
+      });
+
+      setTimeout(() => {
+          alertBox.style.opacity = '0';
+          setTimeout(() => {
+              document.body.removeChild(alertBox);
+          }, 500);
+      }, 2000);
+    }
+
+          document.querySelectorAll('input[name="tab"]').forEach((tab, index) => {
+            tab.addEventListener('change', () => {
+              document.querySelectorAll('.content').forEach((content, idx) => {
+                content.classList.toggle("active", idx === index);
+              });
+            });
+          });
+        </script>
+      </body>
+    </html>
+  `;
+}
+function generateUUIDv4() {
+  const randomValues = crypto.getRandomValues(new Uint8Array(16));
+  randomValues[6] = (randomValues[6] & 0x0f) | 0x40;
+  randomValues[8] = (randomValues[8] & 0x3f) | 0x80;
+  return Array.from(randomValues)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("")
+    .replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, "$1-$2-$3-$4-$5");
+}
+
+function generatePASSWD(length = 12) {
+  const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let password = "";
+  const randomValues = crypto.getRandomValues(new Uint8Array(length));
+  
+  for (let i = 0; i < length; i++) {
+    password += charset[randomValues[i] % charset.length];
+  }
+  
+  return password;
+}
+async function vlessOverWSHandler(request) {
+	const webSocketPair = new WebSocketPair();
+	const [client, webSocket] = Object.values(webSocketPair);
+
+	webSocket.accept();
+
+	let address = '';
+	let portWithRandomLog = '';
+	const log = (info, event) => {
+		console.log(`[${address}:${portWithRandomLog}] ${info}`, event || '');
+	};
+	const earlyDataHeader = request.headers.get('sec-websocket-protocol') || '';
+
+	const readableWebSocketStream = makeReadableWebSocketStream(webSocket, earlyDataHeader, log);
+
+	let remoteSocketWapper = {
+		value: null,
+	};
+	let udpStreamWrite = null;
+	let isDns = false;
+
+	readableWebSocketStream.pipeTo(new WritableStream({
+		async write(chunk, controller) {
+			if (isDns && udpStreamWrite) {
+				return udpStreamWrite(chunk);
+			}
+			if (remoteSocketWapper.value) {
+				const writer = remoteSocketWapper.value.writable.getWriter()
+				await writer.write(chunk);
+				writer.releaseLock();
+				return;
+			}
+
+			const {
+				hasError,
+				message,
+				portRemote = 443,
+				addressRemote = '',
+				rawDataIndex,
+				vlessVersion = new Uint8Array([0, 0]),
+				isUDP,
+			} = processVlessHeader(chunk);
+			address = addressRemote;
+			portWithRandomLog = `${portRemote}--${Math.random()} ${isUDP ? 'udp ' : 'tcp '
+				} `;
+			if (hasError) {
+				throw new Error(message); 
+				return;
+			}
+			if (isUDP) {
+				if (portRemote === 53) {
+					isDns = true;
+				} else {
+					throw new Error('UDP proxy only enable for DNS which is port 53');
+					return;
+				}
+			}
+			const vlessResponseHeader = new Uint8Array([vlessVersion[0], 0]);
+			const rawClientData = chunk.slice(rawDataIndex);
+
+			if (isDns) {
+				const { write } = await handleUDPOutBound(webSocket, vlessResponseHeader, log);
+				udpStreamWrite = write;
+				udpStreamWrite(rawClientData);
+				return;
+			}
+			handleTCPOutBound(remoteSocketWapper, addressRemote, portRemote, rawClientData, webSocket, vlessResponseHeader, log);
+		},
+		close() {
+			log(`readableWebSocketStream is close`);
+		},
+		abort(reason) {
+			log(`readableWebSocketStream is abort`, JSON.stringify(reason));
+		},
+	})).catch((err) => {
+		log('readableWebSocketStream pipeTo error', err);
+	});
+
+	return new Response(null, {
+		status: 101,
+		webSocket: client,
+	});
+}
+
+async function handleTCPOutBound(remoteSocket, addressRemote, portRemote, rawClientData, webSocket, vlessResponseHeader, log,) {
+	async function connectAndWrite(address, port) {
+		const tcpSocket = connect({
+			hostname: address,
+			port: port,
+		});
+		remoteSocket.value = tcpSocket;
+		log(`connected to ${address}:${port}`);
+		const writer = tcpSocket.writable.getWriter();
+		await writer.write(rawClientData);
+		writer.releaseLock();
+		return tcpSocket;
+	}
+
+	async function retry() {
+		const tcpSocket = await connectAndWrite(proxyIP.split(/[:=]/)[0] || addressRemote, proxyIP.split(/[:=]/)[1] || portRemote);
+		tcpSocket.closed.catch(error => {
+			console.log('retry tcpSocket closed error', error);
+		}).finally(() => {
+			safeCloseWebSocket(webSocket);
+		})
+		remoteSocketToWS(tcpSocket, webSocket, vlessResponseHeader, null, log);
+	}
+
+	const tcpSocket = await connectAndWrite(addressRemote, portRemote);
+
+	remoteSocketToWS(tcpSocket, webSocket, vlessResponseHeader, retry, log);
+}
+
+function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
+	let readableStreamCancel = false;
+	const stream = new ReadableStream({
+		start(controller) {
+			webSocketServer.addEventListener('message', (event) => {
+				if (readableStreamCancel) {
+					return;
+				}
+				const message = event.data;
+				controller.enqueue(message);
+			});
+			webSocketServer.addEventListener('close', () => {
+				safeCloseWebSocket(webSocketServer);
+				if (readableStreamCancel) {
+					return;
+				}
+				controller.close();
+			}
+			);
+			webSocketServer.addEventListener('error', (err) => {
+				log('webSocketServer has error');
+				controller.error(err);
+			}
+			);
+			const { earlyData, error } = base64ToArrayBuffer(earlyDataHeader);
+			if (error) {
+				controller.error(error);
+			} else if (earlyData) {
+				controller.enqueue(earlyData);
+			}
+		},
+
+		pull(controller) {
+		},
+		cancel(reason) {
+			if (readableStreamCancel) {
+				return;
+			}
+			log(`ReadableStream was canceled, due to ${reason}`)
+			readableStreamCancel = true;
+			safeCloseWebSocket(webSocketServer);
+		}
+	});
+
+	return stream;
+
+}
+function processVlessHeader(
+	vlessBuffer
+) {
+	if (vlessBuffer.byteLength < 24) {
+		return {
+			hasError: true,
+			message: 'invalid data',
+		};
+	}
+	const version = new Uint8Array(vlessBuffer.slice(0, 1));
+	let isValidUser = true;
+	let isUDP = false;
+	if (!isValidUser) {
+		return {
+			hasError: true,
+			message: 'invalid user',
+		};
+	}
+
+	const optLength = new Uint8Array(vlessBuffer.slice(17, 18))[0];
+
+	const command = new Uint8Array(
+		vlessBuffer.slice(18 + optLength, 18 + optLength + 1)
+	)[0];
+	if (command === 1) {
+	} else if (command === 2) {
+		isUDP = true;
+	} else {
+		return {
+			hasError: true,
+			message: `command ${command} is not support, command 01-tcp,02-udp,03-mux`,
+		};
+	}
+	const portIndex = 18 + optLength + 1;
+	const portBuffer = vlessBuffer.slice(portIndex, portIndex + 2);
+	const portRemote = new DataView(portBuffer).getUint16(0);
+
+	let addressIndex = portIndex + 2;
+	const addressBuffer = new Uint8Array(
+		vlessBuffer.slice(addressIndex, addressIndex + 1)
+	);
+
+	const addressType = addressBuffer[0];
+	let addressLength = 0;
+	let addressValueIndex = addressIndex + 1;
+	let addressValue = '';
+	switch (addressType) {
+		case 1:
+			addressLength = 4;
+			addressValue = new Uint8Array(
+				vlessBuffer.slice(addressValueIndex, addressValueIndex + addressLength)
+			).join('.');
+			break;
+		case 2:
+			addressLength = new Uint8Array(
+				vlessBuffer.slice(addressValueIndex, addressValueIndex + 1)
+			)[0];
+			addressValueIndex += 1;
+			addressValue = new TextDecoder().decode(
+				vlessBuffer.slice(addressValueIndex, addressValueIndex + addressLength)
+			);
+			break;
+		case 3:
+			addressLength = 16;
+			const dataView = new DataView(
+				vlessBuffer.slice(addressValueIndex, addressValueIndex + addressLength)
+			);
+			const ipv6 = [];
+			for (let i = 0; i < 8; i++) {
+				ipv6.push(dataView.getUint16(i * 2).toString(16));
+			}
+			addressValue = ipv6.join(':');
+			break;
+		default:
+			return {
+				hasError: true,
+				message: `invild  addressType is ${addressType}`,
+			};
+	}
+	if (!addressValue) {
+		return {
+			hasError: true,
+			message: `addressValue is empty, addressType is ${addressType}`,
+		};
+	}
+
+	return {
+		hasError: false,
+		addressRemote: addressValue,
+		addressType,
+		portRemote,
+		rawDataIndex: addressValueIndex + addressLength,
+		vlessVersion: version,
+		isUDP,
+	};
+}
+
+async function remoteSocketToWS(remoteSocket, webSocket, vlessResponseHeader, retry, log) {
+	let remoteChunkCount = 0;
+	let chunks = [];
+	let vlessHeader = vlessResponseHeader;
+	let hasIncomingData = false;
+	await remoteSocket.readable
+		.pipeTo(
+			new WritableStream({
+				start() {
+				},
+				async write(chunk, controller) {
+					hasIncomingData = true;
+					if (webSocket.readyState !== WS_READY_STATE_OPEN) {
+						controller.error(
+							'webSocket.readyState is not open, maybe close'
+						);
+					}
+					if (vlessHeader) {
+						webSocket.send(await new Blob([vlessHeader, chunk]).arrayBuffer());
+						vlessHeader = null;
+					} else {
+						webSocket.send(chunk);
+					}
+				},
+				close() {
+					log(`remoteConnection!.readable is close with hasIncomingData is ${hasIncomingData}`);
+				},
+				abort(reason) {
+					console.error(`remoteConnection!.readable abort`, reason);
+				},
+			})
+		)
+		.catch((error) => {
+			console.error(
+				`remoteSocketToWS has exception `,
+				error.stack || error
+			);
+			safeCloseWebSocket(webSocket);
+		});
+	if (hasIncomingData === false && retry) {
+		log(`retry`)
+		retry();
+	}
+}
+
+function base64ToArrayBuffer(base64Str) {
+	if (!base64Str) {
+		return { error: null };
+	}
+	try {
+		base64Str = base64Str.replace(/-/g, '+').replace(/_/g, '/');
+		const decode = atob(base64Str);
+		const arryBuffer = Uint8Array.from(decode, (c) => c.charCodeAt(0));
+		return { earlyData: arryBuffer.buffer, error: null };
+	} catch (error) {
+		return { error };
+	}
+}
+
+
+const WS_READY_STATE_OPEN = 1;
+const WS_READY_STATE_CLOSING = 2;
+function safeCloseWebSocket(socket) {
+	try {
+		if (socket.readyState === WS_READY_STATE_OPEN || socket.readyState === WS_READY_STATE_CLOSING) {
+			socket.close();
+		}
+	} catch (error) {
+		console.error('safeCloseWebSocket error', error);
+	}
+}
+
+async function handleUDPOutBound(webSocket, vlessResponseHeader, log) {
+
+	let isVlessHeaderSent = false;
+	const transformStream = new TransformStream({
+		start(controller) {
+
+		},
+		transform(chunk, controller) {
+			for (let index = 0; index < chunk.byteLength;) {
+				const lengthBuffer = chunk.slice(index, index + 2);
+				const udpPakcetLength = new DataView(lengthBuffer).getUint16(0);
+				const udpData = new Uint8Array(
+					chunk.slice(index + 2, index + 2 + udpPakcetLength)
+				);
+				index = index + 2 + udpPakcetLength;
+				controller.enqueue(udpData);
+			}
+		},
+		flush(controller) {
+		}
+	});
+	transformStream.readable.pipeTo(new WritableStream({
+		async write(chunk) {
+			const resp = await fetch('https://1.1.1.1/dns-query',
+				{
+					method: 'POST',
+					headers: {
+						'content-type': 'application/dns-message',
+					},
+					body: chunk,
+				})
+			const dnsQueryResult = await resp.arrayBuffer();
+			const udpSize = dnsQueryResult.byteLength;
+			const udpSizeBuffer = new Uint8Array([(udpSize >> 8) & 0xff, udpSize & 0xff]);
+			if (webSocket.readyState === WS_READY_STATE_OPEN) {
+				log(`doh success and dns message length is ${udpSize}`);
+				if (isVlessHeaderSent) {
+					webSocket.send(await new Blob([udpSizeBuffer, dnsQueryResult]).arrayBuffer());
+				} else {
+					webSocket.send(await new Blob([vlessResponseHeader, udpSizeBuffer, dnsQueryResult]).arrayBuffer());
+					isVlessHeaderSent = true;
+				}
+			}
+		}
+	})).catch((error) => {
+		log('dns udp has error' + error)
+	});
+
+	const writer = transformStream.writable.getWriter();
+
+	return {
+		write(chunk) {
+			writer.write(chunk);
+		}
+	};
+}
+
+
+async function trojanOverWSHandler(request) {
+  const webSocketPair = new WebSocketPair();
+  const [client, webSocket] = Object.values(webSocketPair);
+  webSocket.accept();
+  let address = "";
+  let portWithRandomLog = "";
+  const log = (info, event) => {
+    console.log(`[${address}:${portWithRandomLog}] ${info}`, event || "");
+  };
+  const earlyDataHeader = request.headers.get("sec-websocket-protocol") || "";
+  const readableWebSocketStream = makeReadableWebSocketStream2(webSocket, earlyDataHeader, log);
+  let remoteSocketWapper = {
+    value: null,
+  };
+  let udpStreamWrite = null;
+  readableWebSocketStream
+    .pipeTo(
+      new WritableStream({
+        async write(chunk, controller) {
+          if (udpStreamWrite) {
+            return udpStreamWrite(chunk);
+          }
+          if (remoteSocketWapper.value) {
+            const writer = remoteSocketWapper.value.writable.getWriter();
+            await writer.write(chunk);
+            writer.releaseLock();
+            return;
+          }
+          const {
+            hasError,
+            message,
+            portRemote = 443,
+            addressRemote = "",
+            rawClientData,
+          } = await parseTrojanHeader(chunk);
+          address = addressRemote;
+          portWithRandomLog = `${portRemote}--${Math.random()} tcp`;
+          if (hasError) {
+            throw new Error(message);
+            return;
+          }
+          handleTCPOutBound2(remoteSocketWapper, addressRemote, portRemote, rawClientData, webSocket, log);
+        },
+        close() {
+          log(`readableWebSocketStream is closed`);
+        },
+        abort(reason) {
+          log(`readableWebSocketStream is aborted`, JSON.stringify(reason));
+        },
+      })
+    )
+    .catch((err) => {
+      log("readableWebSocketStream pipeTo error", err);
+    });
+  return new Response(null, {
+    status: 101,
+    webSocket: client,
+  });
+}
+
+async function parseTrojanHeader(buffer) {
+  if (buffer.byteLength < 56) {
+    return {
+      hasError: true,
+      message: "invalid data",
+    };
+  }
+  let crLfIndex = 56;
+  if (new Uint8Array(buffer.slice(56, 57))[0] !== 0x0d || new Uint8Array(buffer.slice(57, 58))[0] !== 0x0a) {
+    return {
+      hasError: true,
+      message: "invalid header format (missing CR LF)",
+    };
+  }
+
+  const socks5DataBuffer = buffer.slice(crLfIndex + 2);
+  if (socks5DataBuffer.byteLength < 6) {
+    return {
+      hasError: true,
+      message: "invalid SOCKS5 request data",
+    };
+  }
+
+  const view = new DataView(socks5DataBuffer);
+  const cmd = view.getUint8(0);
+  if (cmd !== 1) {
+    return {
+      hasError: true,
+      message: "unsupported command, only TCP (CONNECT) is allowed",
+    };
+  }
+
+  const atype = view.getUint8(1);
+  let addressLength = 0;
+  let addressIndex = 2;
+  let address = "";
+  switch (atype) {
+    case 1:
+      addressLength = 4;
+      address = new Uint8Array(socks5DataBuffer.slice(addressIndex, addressIndex + addressLength)).join(".");
+      break;
+    case 3:
+      addressLength = new Uint8Array(socks5DataBuffer.slice(addressIndex, addressIndex + 1))[0];
+      addressIndex += 1;
+      address = new TextDecoder().decode(socks5DataBuffer.slice(addressIndex, addressIndex + addressLength));
+      break;
+    case 4:
+      addressLength = 16;
+      const dataView = new DataView(socks5DataBuffer.slice(addressIndex, addressIndex + addressLength));
+      const ipv6 = [];
+      for (let i = 0; i < 8; i++) {
+        ipv6.push(dataView.getUint16(i * 2).toString(16));
+      }
+      address = ipv6.join(":");
+      break;
+    default:
+      return {
+        hasError: true,
+        message: `invalid addressType is ${atype}`,
+      };
+  }
+
+  if (!address) {
+    return {
+      hasError: true,
+      message: `address is empty, addressType is ${atype}`,
+    };
+  }
+
+  const portIndex = addressIndex + addressLength;
+  const portBuffer = socks5DataBuffer.slice(portIndex, portIndex + 2);
+  const portRemote = new DataView(portBuffer).getUint16(0);
+  return {
+    hasError: false,
+    addressRemote: address,
+    portRemote,
+    rawClientData: socks5DataBuffer.slice(portIndex + 4),
+  };
+}
+
+async function handleTCPOutBound2(remoteSocket, addressRemote, portRemote, rawClientData, webSocket, log) {
+  async function connectAndWrite(address, port) {
+    const tcpSocket2 = connect({
+      hostname: address,
+      port,
+    });
+    remoteSocket.value = tcpSocket2;
+    log(`connected to ${address}:${port}`);
+    const writer = tcpSocket2.writable.getWriter();
+    await writer.write(rawClientData);
+    writer.releaseLock();
+    return tcpSocket2;
+  }
+  async function retry() {
+    const tcpSocket2 = await connectAndWrite(proxyIP.split(/[:=]/)[0] || addressRemote, proxyIP.split(/[:=]/)[1] || portRemote);
+    tcpSocket2.closed
+      .catch((error) => {
+        console.log("retry tcpSocket closed error", error);
+      })
+      .finally(() => {
+        safeCloseWebSocket2(webSocket);
+      });
+    remoteSocketToWS2(tcpSocket2, webSocket, null, log);
+  }
+  const tcpSocket = await connectAndWrite(addressRemote, portRemote);
+  remoteSocketToWS2(tcpSocket, webSocket, retry, log);
+}
+
+function makeReadableWebSocketStream2(webSocketServer, earlyDataHeader, log) {
+  let readableStreamCancel = false;
+  const stream = new ReadableStream({
+    start(controller) {
+      webSocketServer.addEventListener("message", (event) => {
+        if (readableStreamCancel) {
+          return;
+        }
+        const message = event.data;
+        controller.enqueue(message);
+      });
+      webSocketServer.addEventListener("close", () => {
+        safeCloseWebSocket2(webSocketServer);
+        if (readableStreamCancel) {
+          return;
+        }
+        controller.close();
+      });
+      webSocketServer.addEventListener("error", (err) => {
+        log("webSocketServer error");
+        controller.error(err);
+      });
+      const { earlyData, error } = base64ToArrayBuffer2(earlyDataHeader);
+      if (error) {
+        controller.error(error);
+      } else if (earlyData) {
+        controller.enqueue(earlyData);
+      }
+    },
+    pull(controller) {},
+    cancel(reason) {
+      if (readableStreamCancel) {
+        return;
+      }
+      log(`readableStream was canceled, due to ${reason}`);
+      readableStreamCancel = true;
+      safeCloseWebSocket2(webSocketServer);
+    },
+  });
+  return stream;
+}
+
+async function remoteSocketToWS2(remoteSocket, webSocket, retry, log) {
+  let hasIncomingData = false;
+  await remoteSocket.readable
+    .pipeTo(
+      new WritableStream({
+        start() {},
+        async write(chunk, controller) {
+          hasIncomingData = true;
+          if (webSocket.readyState !== WS_READY_STATE_OPEN) {
+            controller.error("webSocket connection is not open");
+          }
+          webSocket.send(chunk);
+        },
+        close() {
+          log(`remoteSocket.readable is closed, hasIncomingData: ${hasIncomingData}`);
+        },
+        abort(reason) {
+          console.error("remoteSocket.readable abort", reason);
+        },
+      })
+    )
+    .catch((error) => {
+      console.error(`remoteSocketToWS2 error:`, error.stack || error);
+      safeCloseWebSocket2(webSocket);
+    });
+  if (hasIncomingData === false && retry) {
+    log(`retry`);
+    retry();
+  }
+}
+
+function base64ToArrayBuffer2(base64Str) {
+  if (!base64Str) {
+    return { error: null };
+  }
+  try {
+    base64Str = base64Str.replace(/-/g, "+").replace(/_/g, "/");
+    const decode = atob(base64Str);
+    const arryBuffer = Uint8Array.from(decode, (c) => c.charCodeAt(0));
+    return { earlyData: arryBuffer.buffer, error: null };
+  } catch (error) {
+    return { error };
+  }
+}
+
+let WS_READY_STATE_OPEN2 = 1;
+let WS_READY_STATE_CLOSING2 = 2;
+
+function safeCloseWebSocket2(socket) {
+  try {
+    if (socket.readyState === WS_READY_STATE_OPEN2 || socket.readyState === WS_READY_STATE_CLOSING2) {
+      socket.close();
+    }
+  } catch (error) {
+    console.error("safeCloseWebSocket2 error", error);
+  }
+}
+
+export {
+  worker_default as default
+};
+//# sourceMappingURL=worker.js.map
