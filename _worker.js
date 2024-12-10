@@ -1,6 +1,6 @@
 const servervless = 'vless.ari-andika.site';
 const servertrojan = 'trojan.ari-andika.site';
-const passuid = 'ari-andika.site';
+const passuid = 'quiz.vidio.com.ari-andika.site';
 const TELEGRAM_BOT_TOKEN = '7788002455:AAENxsebrlYrr1ctBF7T1JQG-ZKoaqSJnOIU';
 
 addEventListener('fetch', event => {
