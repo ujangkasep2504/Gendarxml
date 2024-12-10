@@ -1,7 +1,7 @@
 const servervless = 'vless.ari-andika.site';
 const servertrojan = 'trojan.ari-andika.site';
 const passuid = 'GENDAR-XXXXXX-XXX';
-const TELEGRAM_BOT_TOKEN = '7788002455:AAENxsebrlYrr1ctBF7T1JQG-ZKoaqSJnOIU';
+const TELEGRAM_BOT_TOKEN = '7860871329:AAHzUpYg64zIZymSD2yEDMVZAnMgrXLvy3g';
 
 addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
