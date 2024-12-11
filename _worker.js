@@ -6,37 +6,19 @@ let proxyPort;
 var worker_default = {
   async fetch(request, env, ctx) {
     try {
-      const proxyListUrl = env.LIST_IP_PORT || "";
-      if (!proxyListUrl) throw new Error("No Proxy Bank URL Provided!");
-
-      // Unlimited caching variables
-      if (!env.cachedProxyList) {
-        env.cachedProxyList = null;
-      }
-
-      let proxyList;
-
-      // Use cached proxy list if it exists
-      if (env.cachedProxyList) {
-        proxyList = env.cachedProxyList;
-      } else {
-        // Fetch proxy list if cache is not available
-        const proxyResponse = await fetch(proxyListUrl);
-        if (proxyResponse.status !== 200) throw new Error("Failed to fetch proxy data.");
-        const proxyListText = await proxyResponse.text();
-        proxyList = proxyListText.split("\n").filter(Boolean).map((entry) => {
+      // Parse the list of proxies from the environment variable
+      const listProxy = (env.LIST_IP_PORT || "")
+        .split("\n")
+        .filter(Boolean)
+        .map(entry => {
           const [proxyIP, proxyPort, country, isp] = entry.split(",");
           return {
             proxyIP: proxyIP || "Unknown",
             proxyPort: proxyPort || "Unknown",
             country: country || "Unknown",
-            isp: isp || "Unknown isp",
+            isp: isp || "Unknown ISP"
           };
         });
-
-        // Cache the fetched proxy list
-        env.cachedProxyList = proxyList;
-      }
 
       const upgradeHeader = request.headers.get("Upgrade");
       const url = new URL(request.url);
@@ -48,32 +30,32 @@ var worker_default = {
         } else if (url.pathname.includes("/tr=")) {
           proxyIP = url.pathname.split("tr=")[1];
           return await trojanOverWSHandler(request);
+        } else {
+          proxyIP = "cdn.xn--b6gac.eu.org";
+          return await vlessOverWSHandler(request);
         }
       }
 
-      const allConfig = await getAllConfigVless(env, request.headers.get("Host"), proxyList);
+      const allConfig = await getAllConfigVless(env, request.headers.get("Host"), listProxy);
 
       return new Response(allConfig, {
         status: 200,
-        headers: { "Content-Type": "text/html;charset=utf-8" },
+        headers: { "Content-Type": "text/html;charset=utf-8" }
       });
-
     } catch (err) {
-      return new Response(`An error occurred: ${err.message}`, {
-        status: 500,
+      return new Response(`An error occurred: ${err.toString()}`, {
+        status: 500
       });
     }
-  },
-};
-
-
+  }
+}
 async function getAllConfigVless(env, hostName, listProxy) {
   const listProxyElements = listProxy
     .map(({ proxyIP, proxyPort, country, isp }, index) => {
-      const vlessTls = `vless://${generateUUIDv4()}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Fvl%3D${proxyIP}%3D${proxyPort}#(${country}) ${isp}`;
-      const vlessNtls = `vless://${generateUUIDv4()}@${hostName}:80?path=%2Fvl%3D${proxyIP}%3D${proxyPort}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#(${country}) ${isp}`;
-      const trojanTls = `trojan://${generatePASSWD()}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Ftr%3D${proxyIP}%3D${proxyPort}#(${country}) ${isp}`;
-      const trojanNtls = `trojan://${generatePASSWD()}@${hostName}:80?path=%2Ftr%3D${proxyIP}%3D${proxyPort}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#(${country}) ${isp}`;
+      const vlessTls = `vless://${generateUUIDv4()}@masukan.bug.ws:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Fvl%3D${proxyIP}%3D${proxyPort}#(${country}) ${isp}`;
+      const vlessNtls = `vless://${generateUUIDv4()}@masukan.bug.ws:80?path=%2Fvl%3D${proxyIP}%3D${proxyPort}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#(${country}) ${isp}`;
+      const trojanTls = `trojan://${generatePASSWD()}@masukan.bug.ws:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Ftr%3D${proxyIP}%3D${proxyPort}#(${country}) ${isp}`;
+      const trojanNtls = `trojan://${generatePASSWD()}@masukan.bug.ws:80?path=%2Ftr%3D${proxyIP}%3D${proxyPort}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#(${country}) ${isp}`;
 
       return `
         <div class="content ${index === 0 ? "active" : ""}">
