@@ -45,7 +45,8 @@ async function getAllConfigVless(hostName) {
       const response = await fetch(`http://ip-api.com/json/${proxyAddress}`);
       const data = await response.json();
       const pathFixed = encodeURIComponent(path);
-      const vlessTls = `vless://${generateUUIDv4()}@${hostName}:443?encryption=none&security=tls&sni=andihafiz2016.workers.dev.ari-andika.site&fp=randomized&type=ws&host=andihafiz2016.workers.dev.ari-andika.site&path=${pathFixed}#${hostName} (${data.countryCode})`;
+      const vlessTls = `vless://${generateUUIDv4()}@${hostName}:443?encryption=none&security=tls&sni=andihafiz.ari-andika.site&fp=randomized&type=ws&host=andihafiz.ari-andika.site&path=${pathFixed}#${hostName} (${data.countryCode})`;
+      const vlessNtls = `vless://${generateUUIDv4()}@${hostName}:443?encryption=none&security=tls&sni=andihafiz.ari-andika.site&fp=randomized&type=ws&host=andihafiz.ari-andika.site&path=${pathFixed}#${hostName} (${data.countryCode})`;
       const vlessNtls = `vless://${generateUUIDv4()}@${hostName}:80?path=${pathFixed}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws#${data.isp} (${data.countryCode})`;
       const vlessTlsFixed = vlessTls.replace(/ /g, "+");
       const vlessNtlsFixed = vlessNtls.replace(/ /g, "+");
