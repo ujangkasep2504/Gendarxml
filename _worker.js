@@ -1,429 +1,829 @@
-import { connect } from "cloudflare:sockets";
-
-let proxyIP;
-let proxyPort;
-
 var worker_default = {
   async fetch(request, env, ctx) {
     try {
-      const proxyListUrl = env.LIST_IP_PORT || "";
-      if (!proxyListUrl) throw new Error("No Proxy Bank URL Provided!");
-
-      // Unlimited caching variables
-      if (!env.cachedProxyList) {
-        env.cachedProxyList = null;
-      }
-
-      let proxyList;
-
-      // Use cached proxy list if it exists
-      if (env.cachedProxyList) {
-        proxyList = env.cachedProxyList;
-      } else {
-        // Fetch proxy list if cache is not available
-        const proxyResponse = await fetch(proxyListUrl);
-        if (proxyResponse.status !== 200) throw new Error("Failed to fetch proxy data.");
-        const proxyListText = await proxyResponse.text();
-        proxyList = proxyListText.split("\n").filter(Boolean).map((entry) => {
-          const [proxyIP, proxyPort, country, isp] = entry.split(",");
-          return {
-            proxyIP: proxyIP || "Unknown",
-            proxyPort: proxyPort || "Unknown",
-            country: country || "Unknown",
-            isp: isp || "Unknown isp",
-          };
-        });
-
-        // Cache the fetched proxy list
-        env.cachedProxyList = proxyList;
-      }
+      const response = await fetch('https://bmkg.xyz/ip.json');
+      const listProxy = await response.text().split('\n').map(entry => {
+        const [proxyIP, proxyPort] = entry.split(',');
+        return { proxyIP, proxyPort };
+      });
 
       const upgradeHeader = request.headers.get("Upgrade");
       const url = new URL(request.url);
 
       if (upgradeHeader === "websocket") {
-        if (url.pathname.includes("/vl=")) {
-          proxyIP = url.pathname.split("vl=")[1];
-          return await vlessOverWSHandler(request);
-        } else if (url.pathname.includes("/tr=")) {
-          proxyIP = url.pathname.split("tr=")[1];
-          return await trojanOverWSHandler(request);
-        }
+        // Handler websocket
+      } else {
+        const allConfig = await getAllConfigVless(env, request.headers.get("Host"), listProxy);
+        return new Response(allConfig, {
+          status: 200,
+          headers: { "Content-Type": "text/html;charset=utf-8" }
+        });
       }
-
-      const allConfig = await getAllConfigVless(env, request.headers.get("Host"), proxyList);
-
-      return new Response(allConfig, {
-        status: 200,
-        headers: { "Content-Type": "text/html;charset=utf-8" },
-      });
-
     } catch (err) {
-      return new Response(`An error occurred: ${err.message}`, {
-        status: 500,
-      });
+      return new Response(An error occurred: ${err.toString()}, { status: 500 });
     }
-  },
+  }
 };
-
-
 async function getAllConfigVless(env, hostName, listProxy) {
-  const listProxyElements = listProxy
-    .map(({ proxyIP, proxyPort, country, isp }, index) => {
-      const vlessTls = `vless://${generateUUIDv4()}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Fvl%3D${proxyIP}%3D${proxyPort}#(${country}) ${isp}`;
-      const vlessNtls = `vless://${generateUUIDv4()}@${hostName}:80?path=%2Fvl%3D${proxyIP}%3D${proxyPort}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#(${country}) ${isp}`;
-      const trojanTls = `trojan://${generatePASSWD()}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Ftr%3D${proxyIP}%3D${proxyPort}#(${country}) ${isp}`;
-      const trojanNtls = `trojan://${generatePASSWD()}@${hostName}:80?path=%2Ftr%3D${proxyIP}%3D${proxyPort}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#(${country}) ${isp}`;
+  try {
+    let v2rayConfigs = "";
+    let v2raytable = "";
+    let vlessConfigs = "";
+    let trojanConfigs = "";
+    for (const entry of listProxy) {
+      const { proxyIP, proxyPort, country, isp } = entry;
+      const vlessTls = `vless://${generateUUIDv4()}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=/vl%3D${proxyIP}%3A${proxyPort}#${country} ${isp}`;
+      const vlessNtls = `vless://${generateUUIDv4()}@${hostName}:80?path=/vl%3D${proxyIP}%3A${proxyPort}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#${country} ${isp}`;
+      const vlessTlsFixed = vlessTls.replace(/ /g, "+");
+      const trojanTls = `trojan://${generateUUIDv4()}@${hostName}:443?security=tls&type=ws&host=${hostName}&sni=${hostName}&fp=random&path=/tr%3D${proxyIP}%3A${proxyPort}#${country} ${isp}`;
+      const trojanTlsFixed = trojanTls.replace(/ /g, '+');
 
-      return `
-        <div class="content ${index === 0 ? "active" : ""}">
-          <h2>VLESS & TROJAN CLOUDFLARE</h2><br>
-          <h2>Free and Unlimited</h2><br>
-          <hr class="config-divider"/>
-          <center><h1>${country} (${isp})</h1></center>
-          <center><h1>${proxyIP}:${proxyPort}</h1></center>
-          <hr class="config-divider" />
-          <h2>VLESS</h2>
-          <pre>${vlessTls}</pre>
-          <button onclick="copyToClipboard('${vlessTls}')">Copy Vless TLS</button>
-          <pre>${vlessNtls}</pre>
-          <button onclick="copyToClipboard('${vlessNtls}')">Copy Vless N-TLS</button>
-          <hr class="config-divider" />
-          <h2>TROJAN</h2>
-          <pre>${trojanTls}</pre>
-          <button onclick="copyToClipboard('${trojanTls}')">Copy Trojan TLS</button>
-          <pre>${trojanNtls}</pre>
-          <button onclick="copyToClipboard('${trojanNtls}')">Copy Trojan N-TLS</button>
-          <hr class="config-divider" />
-        </div>`;
-    })
-    .join("");
+   v2raytable += ` <tr> 
+       
+<td class="tablinks" onclick="openCity(event, 'v2ray${proxyIP}:${proxyPort}')"><p style="font-size: 24px; "><a href="#v2ray${proxyIP}:${proxyPort}">${isp} | (${country})</a></p><hr class="config-divider" /></td>
+</tr>
+      
+        `;
+   v2rayConfigs += `  <div id="v2ray${proxyIP}:${proxyPort}" class="tabcontent">
+                                  <div class="config-section">  <pre><b>               
+<hr class="config-divider" /> <p class="config">
+Â» Domain      : ${hostName}
+Â» ISP         : ${isp}
+Â» Country     : (${country})
+Â» UUID        : ${generateUUIDv4()}
+Â» Port TLS    : 443
+Â» Port NTLS   : 80
+Â» Security    : auto
+Â» Network     : (WS)
+Â» Path Vless  : /vl=${proxyIP}:${proxyPort}
+Â» Path Trojan : /tr=${proxyIP}:${proxyPort}</p>
+<hr class="config-divider" /></b>
 
-  return `
-    <html>
-      <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Vless | AFRCloud | CloudFlare</title>
-    <meta name="description" content="Akun Vless Gratis.">
-    <meta name="keywords" content="AFRCloud, Vless Gratis, Free Vless, Vless CF, Trojan CF, Cloudflare">
-    <meta name="author" content="AFRCloud">
-    <meta name="robots" content="index, follow">
+</pre>  </div><hr class="config-divider" /><div class="config-section"> 
+       <p style="font-size: 28px; "><strong>ISP  :  ${isp} (${country}) </strong> </p>
+    <hr />
+    
+        <div class="config-block">
+                <h3>VLESS TLS:</h3>
+                <p class="config">${vlessTlsFixed}</p>
+                <button class="button2" onclick='copyToClipboard("${vlessTlsFixed}")'><i class="fa fa-clipboard"></i>Copy</button>
+               </div>
+              <hr /> 
+              
+            <div class="config-block">
+                <h3>VLESS NTLS:</h3>
+                <p class="config">${vlessNtlsFixed}</p>
+                <button class="button2" onclick='copyToClipboard("${vlessNtlsFixed}")'><i class="fa fa-clipboard"></i>Copy</button>
+            </div><hr /> 
+            <div class="config-block">
+                <h3>TROJAN TLS:</h3>
+          <p class="config">${trojanTlsFixed}</p>
+                <button class="button2" onclick='copyToClipboard("${trojanTlsFixed}")'><i class="fa fa-clipboard"></i>Copy</button>
+               </div>
+               
+          
+            <hr />
+           <a href="#defaultOpen">BACK TO SEARCH</a> 
 
-    <!-- Open Graph Meta Tags untuk SEO Media Sosial -->
-    <meta property="og:title" content="Akun Vless Gratis - Akun Vless Cloudflare">
-    <meta property="og:description" content="AFRCloud, Vless Gratis, Free Vless, Vless CF, Trojan CF, Cloudflare.">
-    <meta property="og:image" content="https://img.freepik.com/free-photo/painting-mountain-lake-with-mountain-background_188544-9126.jpg"> <!-- Ganti dengan URL gambar yang sesuai -->
-    <meta property="og:url" content="https://img.freepik.com/free-photo/painting-mountain-lake-with-mountain-background_188544-9126.jpg">
-    <meta property="og:type" content="website">
+       
+        
+    </div>    </div>
 
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Akun Vless Gratis - Akun Vless Cloudflare">
-    <meta name="twitter:description" content="AFRCloud, Vless Gratis, Free Vless, Vless CF, Trojan CF, Cloudflare.">
-    <meta name="twitter:image" content="https://img.freepik.com/free-photo/painting-mountain-lake-with-mountain-background_188544-9126.jpg"> <!-- Ganti dengan URL gambar yang sesuai -->
-        <style>
-  html, body {
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    background-color: #1a1a1a;
-    font-family: 'Roboto', Arial, sans-serif;
-    margin: 0;
-  }
-  body {
-    display: flex;
-    background: url('https://raw.githubusercontent.com/bitzblack/ip/refs/heads/main/shubham-dhage-5LQ_h5cXB6U-unsplash.jpg') no-repeat center center fixed;
-    background-size: cover;
-    justify-content: center;
-    align-items: center;
-  }
-  .popup {
-    width: 100vw;
-    height: 90vh;
-    border-radius: 15px;
-    background-color: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(8px);
-    display: grid;
-    grid-template-columns: 1.5fr 3fr;
-    box-shadow: 0px 10px 20px rgba(255, 223, 0, 0.5); /* Efek kuning */
-    overflow: hidden;
-    animation: popupEffect 1s ease-in-out;
-  }
-  @keyframes popupEffect {
-    0% { transform: scale(0.8); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-  .tabs {
-    background-color: #2a2a2a;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    border-right: 2px solid #FFD700; /* Warna kuning */
-    box-shadow: inset 0 0 10px rgba(255, 223, 0, 0.3); /* Glow kuning */
-  }
-  .author-link {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    font-weight: bold;
-    font-style: italic;
-    color: #FFD700; /* Warna kuning */
-    font-size: 12px;
-    text-decoration: none;
-    z-index: 10;
-  }
-  .author-link:hover {
-    color: #FFF700; /* Kuning lebih terang */
-    text-shadow: 0px 0px 10px rgba(255, 223, 0, 0.7);
-  }
-  label {
-    font-size: 12px;
-    cursor: pointer;
-    color: #FFD700; /* Warna kuning */
-    padding: 10px;
-    background-color: #333;
-    border-radius: 8px;
-    text-align: left;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    box-shadow: 0px 4px 6px rgba(255, 223, 0, 0.3); /* Glow kuning */
-    white-space: normal;
-    overflow-wrap: break-word;
-  }
-  label:hover {
-    background-color: #FFD700; /* Kuning */
-    color: #111;
-    transform: translateY(-3px);
-    box-shadow: 0px 8px 12px rgba(255, 223, 0, 0.7);
-  }
-  input[type="radio"] {
-    display: none;
-  }
-  .tab-content {
-    padding: 20px;
-    overflow-y: auto;
-    color: #FFFACD; /* Kuning pucat */
-    font-size: 14px;
-    background-color: #222;
-    height: 100%;
-    box-sizing: border-box;
-    border-radius: 10px;
-    box-shadow: inset 0 0 20px rgba(255, 223, 0, 0.2);
-  }
-  .content {
-    display: none;
-    padding-right: 15px;
-  }
-  .content.active {
-    display: block;
-    animation: fadeIn 0.5s ease;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  h1 {
-    font-size: 18px;
-    color: #FFD700; /* Kuning */
-    margin-bottom: 10px;
-    text-shadow: 0px 0px 10px rgba(255, 223, 0, 0.5);
-  }
-  h2 {
-    font-size: 22px;
-    color: #FFD700; /* Kuning */
-    text-align: center;
-    text-shadow: 0px 0px 15px rgba(255, 223, 0, 0.7);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 8px;
-  }
-  pre {
-    background-color: rgba(50, 50, 50, 0.8);
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 12px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    color: #FFD700; /* Kuning */
-    border: 1px solid #FFD700;
-    box-shadow: 0px 4px 8px rgba(255, 223, 0, 0.4);
-  }
-  .config-divider {
-    border: none;
-    height: 1px;
-    background: linear-gradient(to right, transparent, #FFD700, transparent);
-    margin: 40px 0;
-  }
-  .config-description {
-    font-weight: bold;
-    font-style: italic;
-    color: #FFD700; /* Kuning */
-    font-size: 14px;
-    text-align: justify;
-    margin: 0 10px; /* Tambahkan margin kiri-kanan agar tidak terlalu mepet */
-  }
-  button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    background-color: #FFD700;
-    color: #111;
-    cursor: pointer;
-    font-weight: bold;
-    display: block;
-    text-align: left;
-    box-shadow: 0px 4px 6px rgba(255, 223, 0, 0.5);
-    transition: background-color 0.3s ease, transform 0.3s ease;
-  }
-  button:hover {
-    background-color: #FFF700; /* Kuning lebih terang */
-    transform: translateY(-3px);
-    box-shadow: 0px 8px 12px rgba(255, 223, 0, 0.8);
-  }
-  #search {
-    background: #333;
-    color: #FFD700;
-    border: 1px solid #FFD700;
-    border-radius: 6px;
-    padding: 5px;
-    margin-bottom: 10px;
-    width: 100%;
-    box-shadow: 0px 0px 10px rgba(255, 223, 0, 0.3);
-  }
-  #search::placeholder {
-    color: #FFD700;
-  }
-  .watermark {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    font-weight: bold;
-    text-align: center;
-  }
 
-  .watermark a {
-    color: #e74c3c; /* Red */
-    text-decoration: none;
-    font-weight: bold;
-}
+`;
 
-  .watermark a:hover {
-    color: #e74c3c; /* Red */
-}
-
-  @media (max-width: 768px) {
-    .header h1 { font-size: 32px; }
-    .config-section h3 { font-size: 24px; }
-    .config-block h4 { font-size: 20px; }
-  }
-</style>
-      </head>
-      <body>
-        <div class="popup">
-          <div class="tabs">
-            <input type="text" id="search" placeholder="Search by Country" oninput="filterTabs()">
-            ${listProxy
-              .map(
-                ({ country, isp }, index) => `
-                  <input type="radio" id="tab${index}" name="tab" ${index === 0 ? "checked" : ""}>
-                  <label for="tab${index}" class="tab-label" data-country="${country.toLowerCase()}">${country} - ${isp}</label>
-                `
-              )
-              .join("")}
-          </div>
-          <div class="tab-content">${listProxyElements}</div>
-          <a href="https://t.me/Noir7R" class="watermark" target="_blank">@Noir7R</a>
+    trojanConfigs += `<div class="config-section">
+    <p><strong>ISP  :  ${isp} (${country}) </strong> </p>
+    <hr />
+    <div class="config-toggle">
+        <button class="button" onclick="toggleConfig(this, 'show Trojan', 'hide Trojan')">Show Trojan</button>
+        <div class="config-content">
+            <div class="config-block">
+                <h3>TLS-Only:</h3>
+                <p class="config">${trojanTlsFixed}</p>
+                <button class="button" onclick='copyToClipboard("${trojanTlsFixed}")'><i class="fa fa-clipboard"></i>Copy</button>
+            </div>
+            <hr />
         </div>
-        <script>
-          function filterTabs() {
-            const query = document.getElementById('search').value.toLowerCase();
-            const labels = document.querySelectorAll('.tab-label');
-            labels.forEach(label => {
-              const isVisible = label.dataset.country.includes(query);
-              label.style.display = isVisible ? "block" : "none";
-            });
-          }
+    </div>
+</div>
+<hr class="config-divider" />
+`;
+    }
+    const htmlConfigs = `
+<!DOCTYPE html>
+<html lang="en">
 
-          function copyToClipboard(text) {
-      navigator.clipboard.writeText(text)
-        .then(() => {
-          displayAlert("Successfully copied to clipboard!", '#FFD700');
+<head>
+    <meta charset="utf-8">
+    <title>FREE | CF | VLESS | TROJAN | BMKG-XYZ</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    
+<link href="https://bmkg.xyz/bot/bootstrap.min.css" rel="stylesheet">
+   
+  <link href="https://bmkg.xyz/css/config.css" rel="stylesheet">
+   <link href="https://bmkg.xyz/bot/tables/table.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+
+  <!-- Fonts and icons -->
+  
+<style>
+  body {
+  
+  background-color: #000;
+}
+  div.dt-container .dt-search input {
+  border: 1px solid #fff;
+  border-radius: 3px;
+  padding: 5px;
+  background-color: red;
+  color: inherit;
+  margin-left: 3px;
+}
+  div.dt-container .dt-length,
+div.dt-container .dt-search,
+div.dt-container .dt-info,
+div.dt-container .dt-processing,
+div.dt-container .dt-paging {
+  color: inherit;
+}
+  html.dark .dt-container .dt-search input,
+html.dark .dt-container .dt-length select {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: blue;
+}
+*[dir=rtl] div.dt-container div.dt-search input {
+  margin: 0 3px 0 0;
+}
+  div.dt-container .dt-paging .dt-paging-button {
+  box-sizing: border-box;
+  display: inline-block;
+  min-width: 1.5em;
+  padding: 0.5em 1em;
+  margin-left: 2px;
+  text-align: center;
+  text-decoration: none !important;
+  cursor: pointer;
+  color: inherit !important;
+  border: 1px solid #fff;
+  border-radius: 2px;
+  background: #b60000;
+}
+}
+div.dt-container .dt-paging .dt-paging-button:hover {
+  color: white !important;
+  border: 1px solid #fff;
+  background-color: #b60000;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #585858), color-stop(100%, #111)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #b60000 0%, #00869e 100%); /* Chrome10+,Safari5.1+ */
+  background: -moz-linear-gradient(top, #b60000 0%, #00869e 100%); /* FF3.6+ */
+  background: -ms-linear-gradient(top, #b60000 0%, #00869e 100%); /* IE10+ */
+  background: -o-linear-gradient(top, #b60000 0%, #00869e 100%); /* Opera 11.10+ */
+  background: linear-gradient(to bottom, #b60000 0%, #00869e 100%); /* W3C */
+}
+div.dt-container .dt-paging .dt-paging-button:active {
+  outline: none;
+  background-color: #0090a9;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2b2b2b), color-stop(100%, #0c0c0c)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #b60000 0%, #00869e 100%); /* Chrome10+,Safari5.1+ */
+  background: -moz-linear-gradient(top, #b60000 0%, #00869e 100%); /* FF3.6+ */
+  background: -ms-linear-gradient(top, #b60000 0%, #00869e 100%); /* IE10+ */
+  background: -o-linear-gradient(top, #b60000 0%, #00869e 100%); /* Opera 11.10+ */
+  background: linear-gradient(to bottom, #b60000 0%, #00869e 100%); /* W3C */
+  box-shadow: inset 0 0 3px #0090a9;
+}
+
+  html.dark .dt-container .dt-paging .dt-paging-button.current, html.dark .dt-container .dt-paging .dt-paging-button.current:hover {
+  border: 1px solid rgba(164, 0, 0, 0.9);
+  background: rgba(164, 0, 0, 0.9);
+}
+html.dark .dt-container .dt-paging .dt-paging-button.disabled, html.dark .dt-container .dt-paging .dt-paging-button.disabled:hover, html.dark .dt-container .dt-paging .dt-paging-button.disabled:active {
+  color: #0090a9 !important;
+}
+html.dark .dt-container .dt-paging .dt-paging-button:hover {
+  border: 1px solid rgba(164, 0, 0, 0.9);
+  background: rgba(164, 0, 0, 0.9);
+}
+html.dark .dt-container .dt-paging .dt-paging-button:active {
+  background: #0090a9;
+}
+.container {
+  max-width: 960px;
+  background-color: #000;
+}
+
+.border-top { border-top: 1px solid #e5e5e5; }
+.border-bottom { border-bottom: 1px solid #e5e5e5; }
+.border-top-gray { border-top-color: #adb5bd; }
+
+.box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
+
+.lh-condensed { line-height: 1.25; }
+
+  :root {
+        --primary: #EB1616;
+        --secondary: #000000;
+        --light: #000000;
+        --dark: #000000;       
+        --accent-: #ff00ff;        
+        --darker-: #040608;
+        --card-bg: rgba(8, 12, 20, 0.71);
+        --glow: 0 0 25px rgba(205, 0, 0, 1);
+      }  
+header {
+  background-color: grey;
+  position: fixed;
+  left: 0;
+  width: 0%;
+  text-align: center;
+}
+.header {
+  background-color: grey;
+  position: fixed;
+  left: 0;
+
+  width: 0%;
+  text-align: center;
+}
+
+  .button2 {
+                background-color: #ffa500;
+                border: none;
+                color: #1e1e1e;
+                padding: 6px 12px;
+                text-align: center;
+                text-decoration: none;
+                font-size: 20px;
+                border: 1px solid #3c3c3c;
+                border-radius: 5px;
+                animation: slideIn 0.5s ease-in-out;
+                box-shadow: inset 0 10px 20px rgba(0, 0, 0, 0.5);
+                transition: background-color 0.3s ease, transform 0.2s ease;
+            }
+
+            .button2:hover {
+                background-color: #ff8c00;
+                transform: scale(1.05);
+            }
+  .card {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            padding: 15px;
+            box-sizing: border-box;
+            margin: 15px;
+        }
+        .card:hover {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8);
+            transform: translateY(-5px);
+        }
+        .card__top {
+            height: auto;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .card__top img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            display: block;
+        }
+  .content1 {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .content1.active {
+            display: block;
+            opacity: 1;
+        }
+.config-header {
+        max-width: 100%;
+        background: var(--card-bg); 
+        color: #fff;
+        backdrop-filter: blur(10px);
+        border: 0px solid rgba(242, 89, 0, 1);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: ;
+        transform-style: preserve-3d;
+        animation: cardFloat 6s ease-in-out infinite;
+        }
+  .config-menu {
+        max-width: 100%;
+        background: var(--card-bg);
+        color: #fff;
+        backdrop-filter: blur(10px);
+        border: 0px solid rgba(242, 89, 0, 1);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--glow);
+        transform-style: preserve-3d;
+        animation: cardFloat 6s ease-in-out infinite;
+        }
+  .config-section {
+        max-width: 100%;
+        background: var(--card-bg);
+        color: #fff;
+        backdrop-filter: blur(10px);
+        border: 0px solid rgba(242, 89, 0, 1);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--glow);
+        transform-style: preserve-3d;
+        animation: cardFloat 6s ease-in-out infinite;
+        }
+  .config-footer {
+        max-width: 100%;
+        background: var(--card-bg);
+        color: #fff;
+        backdrop-filter: blur(10px);
+        border: 0px solid rgba(242, 89, 0, 1);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: ;
+        transform-style: preserve-3d;
+        animation: cardFloat 6s ease-in-out infinite;
+        }
+          .config-sectionlogo {
+            background: rgba(0, 0, 0, 0.5);
+            background-color: #000000;
+            padding: 20px;
+            color: #448998;
+            margin-right: 5px;
+            margin-left: 5px;
+            border: 2px solid #000000;
+            border-radius: 10px;
+            position: relative;
+            animation: slideIn 0.5s ease-in-out;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .config-section h3 {
+            margin-top: 0;
+            color: #e1b12c;
+            font-size: 28px;
+        }
+
+        .config-section p {
+            color: #f5f5f5;
+            font-size: 16px;
+        }
+
+        .config-toggle {
+            margin-bottom: 10px;
+        }
+
+        .config-content1 {
+            display: none;
+        }
+
+        .config-content1.active {
+            display: block;
+        }
+
+        .config-block {
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        .config-block h4 {
+            margin-bottom: 8px;
+            color: #f39c12;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .config {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 5px;
+            border: 2px solid #448998;
+            color: #f5f5f5;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+        }
+        
+    
+
+        .config-divider {
+            border: none;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #fff, transparent);
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .config-section h3 {
+                font-size: 24px;
+            }
+
+            .config-block h4 {
+                font-size: 20px;
+            }
+.tab {
+  overflow: hidden;
+ 
+}
+.tab button {
+ 
+}
+.tab button:hover {
+} 
+.tab button.active {
+ 
+}
+.tabcontent {
+  display: none;
+
+}
+.tabcontent1 {
+  display: none;
+
+}
+
+main {
+  padding-top: 80px; /* bad, because it's fixed */
+}
+.footer {
+   position: fixed;
+   left: 0;
+   bottom: 0;   
+   width: 100%;
+   text-align: center;
+}
+</style>
+
+
+
+  </head>
+
+  <body>
+
+
+            
+
+
+<div class="container">
+   
+      
+      <div class="py-5 text-center">
+       <div class="config-header">
+<div class="card__top">
+          <img src="https://raw.githubusercontent.com/win877969/NS1/refs/heads/main/img/icon.png" alt="XVPN" height="150" width="75">
+                        
+        </div>
+        
+            <!-- Sale & Revenue Start -->
+             </div>
+</div>
+      <div class="row">
+        <div class="col-md-5 order-md-2 mb-4">
+          <div class="config-menu">
+
+
+
+                          
+        <strong><b><p style="font-size: 28px;">DAFTAR WILCARD:<p></strong> 
+      <hr class="config-divider" />  
+<br>Â» ava.game.naver.com.${hostName}
+<br>Â» graph.instagram.com.${hostName}
+<br>Â» quiz.int.vidio.com.${hostName}
+<br>Â» live.iflix.com.${hostName}
+<br>Â» support.zoom.us.${hostName}
+<br>Â» blog.webex.com.${hostName}
+<br>Â» investors.spotify.com.${hostName}
+<br>Â» cache.netflix.com.${hostName}
+<br>Â» zaintest.vuclip.com.${hostName}
+<br>Â» io.ruangguru.com.${hostName}</b></hr></div>
+        <hr class="config-divider" />
+      
+          <div class="config-menu">
+  <table id="example" width="100%">
+  <center>
+  
+<div class="tablinks" onclick="openCity(event, 'v2rayaktif')" id="defaultOpen">
+  <p style="font-size: 30px; color: red;">LIST V2RAY<hr class="config-divider" /></p></div></center>
+  <thead>
+            <tr>
+                <th><hr/> <p style="font-size: 25px; ">ISP | COUNTRY</p><hr/> </th>
+              </tr>
+        </thead>
+        <tbody>
+            
+            ${v2raytable}
+             </tbody>
+             
+              </table>
+
+           </div>
+        </div>
+
+        
+          
+        <div class="col-md-7 order-md-1"">
+               ${v2rayConfigs}
+                                  
+           
+
+      <div id="v2rayaktif" class="tabcontent">
+  <div class="config-section">  <pre><b>
+<hr class="config-divider" /><p class="config">
+Â» Domain      : ${hostName}
+Â» ISP         : CV. Rumahweb Indonesia
+Â» Country     : Indonesia
+Â» UUID        : ${generateUUIDv4()}
+Â» Port TLS    : 443
+Â» Port NTLS   : 80
+Â» Security    : auto
+Â» Network     : (WS)
+Â» Path Vless  : /vl=203.194.112.119:8443
+Â» Path Trojan : /vl=203.194.112.119:8443</p>
+<hr class="config-divider" /></b>
+
+</pre>  </div><hr class="config-divider" />
+         <div class="config-section">
+
+    <p style="font-size: 27px; "><strong>ISP  :  CV. Rumahweb Indonesia (ID) </strong> </p>
+    <hr />
+    
+       
+               <div class="config-block">
+                <h3>VLESS TLS:</h3>
+                <p class="config">vless://${generateUUIDv4()}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Fvl%3D203.194.112.119%3A8443#CV.+Rumahweb+Indonesia+(ID)</p>
+                <button class="button2" onclick='copyToClipboard("vless://${generateUUIDv4()}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Fvl%3D203.194.112.119%3A8443#CV.+Rumahweb+Indonesia+(ID)")'><i class="fa fa-clipboard"></i>Copy</button><hr/>
+               </div>
+               
+              
+            <hr />
+            <div class="config-block">
+                <h3>VLESS NTLS:</h3>
+                <p class="config">vless://${generateUUIDv4()}@${hostName}:80?path=%2Fvl%3D203.194.112.119%3A8443&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#CV.+Rumahweb+Indonesia+(ID)</p>
+                <button class="button2" onclick='copyToClipboard("vless://${generateUUIDv4()}@${hostName}:80?path=%2Fvl%3D203.194.112.119%3A8443&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#CV.+Rumahweb+Indonesia+(ID)")'><i class="fa fa-clipboard"></i>Copy</button>
+            </div>
+            
+            <hr />
+            <div class="config-block">
+                <h3>TROJAN TLS:</h3>
+          <p class="config">trojan://${generateUUIDv4()}@${hostName}:443?security=tls&type=ws&host=${hostName}&sni=${hostName}&fp=random&path=%2Ftr%3D203.194.112.119%3A8443#CV.+Rumahweb+Indonesia+(Indonesia)</p>
+                <button class="button2" onclick='copyToClipboard("trojan://${generateUUIDv4()}@${hostName}:443?security=tls&type=ws&host=${hostName}&sni=${hostName}&fp=random&path=%2Ftr%3D203.194.112.119%3A8443#CV.+Rumahweb+Indonesia+(Indonesia)")'><i class="fa fa-clipboard"></i>Copy</button>
+               </div>
+</hr>
+                            
+                        <a href="#defaultOpen">BACK TO SEARCH</a> 
+
+                    
+                      
+                      
+                   </div>
+         </div>
+        </div>
+      </div>
+
+      
+
+            <!-- Sale & Revenue End -->
+
+
+            <!-- Sales Chart Start -->
+
+
+ 
+
+
+            <!-- Footer Start -->
+              <footer class="my-5 pt-5 text-muted text-center text-small">
+
+   <div class="footer">
+    <div class="config-footer">  <p class="mb-1">
+                            &copy; <a href="#">BMKG.XYZ</a>, All Right Reserved. 
+
+                            
+                            Designed By <a href="https://t.me/seaker877/">SEAKER</a>
+                            <br>Distributed By: <a href="https://wa.me/6281335135082" target="_blank">Theme-X</a>
+                        </p>
+                          </div>  
+    </div></footer>
+
+    </div>
+
+        <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="https://bmkg.xyz/bot/jquery-slim.min.js"><\/script></script>
+    <script src="https://bmkg.xyz/bot/popper.min.js"></script>
+    <script src="https://bmkg.xyz/bot/bootstrap.min.js"></script>
+    <script src="https://bmkg.xyz/vendor/holder.min.js"></script>
+      
+      
+          <script src="https://bmkg.xyz/bot/tables/table1.js"></script>
+    <script src="https://bmkg.xyz/bot/tables/query.js"></script>
+      
+        <script>
+       new DataTable('#example');
+</script>   
+
+<script>
+     function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+  tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
+
+   
+     <script>
+        function showContent1(contentId) {
+            const contents = document.querySelectorAll('.content1');
+            contents.forEach(content1 => {
+                content1.classList.remove('active');
+            });
+            document.getElementById(contentId).classList.add('active');
+        }
+        function salinTeks() {
+            var teks = document.getElementById('teksAsli');
+            teks.select();
+            document.execCommand('copy');
+            alert('Teks telah disalin.');
+        }
+        function copyClash(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text)
+            .then(() => {
+            const alertBox = document.createElement('div');
+            alertBox.textContent = "Copied to clipboard!";
+            alertBox.style.position = 'fixed';
+            alertBox.style.bottom = '20px';
+            alertBox.style.right = '20px';
+            alertBox.style.backgroundColor = 'yellow';
+            alertBox.style.color = '#000';
+            alertBox.style.padding = '10px 20px';
+            alertBox.style.borderRadius = '5px';
+            alertBox.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            alertBox.style.opacity = '0';
+            alertBox.style.transition = 'opacity 0.5s ease-in-out';
+            document.body.appendChild(alertBox);
+            setTimeout(() => {
+                alertBox.style.opacity = '1';
+            }, 100);
+            setTimeout(() => {
+                alertBox.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(alertBox);
+                }, 500);
+            }, 2000);
         })
         .catch((err) => {
-          displayAlert("Failed to copy to clipboard: " + err, '#cc2222');
+            console.error("Failed to copy to clipboard:", err);
         });
-    }
-    function displayAlert(message, backgroundColor) {
-      const alertBox = document.createElement('div');
-      alertBox.textContent = message;
-      Object.assign(alertBox.style, {
-          position: 'fixed',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          backgroundColor: backgroundColor,
-          color: '#222',
-          padding: '5px 10px',
-          borderRadius: '5px',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-          opacity: '0',
-          transition: 'opacity 0.5s ease-in-out',
-          zIndex: '1000'
-      });
-      document.body.appendChild(alertBox);
+        }
+function fetchAndDisplayAlert(path) {
+    fetch(path)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(\`HTTP error! Status: \${response.status}\`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const proxyStatus = data.proxyStatus || "Unknown status";
+            const alertBox = document.createElement('div');
+            alertBox.textContent = \`Proxy Status: \${proxyStatus}\`;
+            alertBox.style.position = 'fixed';
+            alertBox.style.bottom = '20px';
+            alertBox.style.right = '20px';
+            alertBox.style.backgroundColor = 'yellow';
+            alertBox.style.color = '#000';
+            alertBox.style.padding = '10px 20px';
+            alertBox.style.borderRadius = '5px';
+            alertBox.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            alertBox.style.opacity = '0';
+            alertBox.style.transition = 'opacity 0.5s ease-in-out';
+            document.body.appendChild(alertBox);
+            
+            setTimeout(() => {
+                alertBox.style.opacity = '1';
+            }, 100);
+            
+            setTimeout(() => {
+                alertBox.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(alertBox);
+                }, 500);
+            }, 2000);
+        })
+        .catch((err) => {
+            alert("Failed to fetch data or invalid response.");
+        });
+}
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    const alertBox = document.createElement('div');
+                    alertBox.textContent = "Copied to clipboard!";
+                    alertBox.style.position = 'fixed';
+                    alertBox.style.bottom = '20px';
+                    alertBox.style.right = '20px';
+                    alertBox.style.backgroundColor = 'yellow';
+                    alertBox.style.color = '#000';
+                    alertBox.style.padding = '10px 20px';
+                    alertBox.style.borderRadius = '5px';
+                    alertBox.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                    alertBox.style.opacity = '0';
+                    alertBox.style.transition = 'opacity 0.5s ease-in-out';
+                    document.body.appendChild(alertBox);
+                    setTimeout(() => {
+                        alertBox.style.opacity = '1';
+                    }, 100);
+                    setTimeout(() => {
+                        alertBox.style.opacity = '0';
+                        setTimeout(() => {
+                            document.body.removeChild(alertBox);
+                        }, 500);
+                    }, 2000);
+                })
+                .catch((err) => {
+                    console.error("Failed to copy to clipboard:", err);
+                });
+        }
 
-      requestAnimationFrame(() => {
-          alertBox.style.opacity = '1';
-      });
-
-      setTimeout(() => {
-          alertBox.style.opacity = '0';
-          setTimeout(() => {
-              document.body.removeChild(alertBox);
-          }, 500);
-      }, 2000);
-    }
-
-          document.querySelectorAll('input[name="tab"]').forEach((tab, index) => {
-            tab.addEventListener('change', () => {
-              document.querySelectorAll('.content').forEach((content, idx) => {
-                content.classList.toggle("active", idx === index);
-              });
-            });
-          });
-        </script>
-      </body>
-    </html>
-  `;
+        function toggleConfig(button, show, hide) {
+            const configContent = button.nextElementSibling;
+            if (configContent.classList.contains('active')) {
+                configContent.classList.remove('active');
+                button.textContent = show;
+            } else {
+                configContent.classList.add('active');
+                button.textContent = hide;
+            }
+        }
+    <\/script>
+</body>
+</html>`;
+    return htmlConfigs;
+  } catch (error) {
+    return `An error occurred while generating the VLESS configurations. ${error}`;
+  }
 }
 function generateUUIDv4() {
   const randomValues = crypto.getRandomValues(new Uint8Array(16));
-  randomValues[6] = (randomValues[6] & 0x0f) | 0x40;
-  randomValues[8] = (randomValues[8] & 0x3f) | 0x80;
-  return Array.from(randomValues)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("")
-    .replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, "$1-$2-$3-$4-$5");
+  randomValues[6] = randomValues[6] & 15 | 64;
+  randomValues[8] = randomValues[8] & 63 | 128;
+  return [
+    randomValues[0].toString(16).padStart(2, "0"),
+    randomValues[1].toString(16).padStart(2, "0"),
+    randomValues[2].toString(16).padStart(2, "0"),
+    randomValues[3].toString(16).padStart(2, "0"),
+    randomValues[4].toString(16).padStart(2, "0"),
+    randomValues[5].toString(16).padStart(2, "0"),
+    randomValues[6].toString(16).padStart(2, "0"),
+    randomValues[7].toString(16).padStart(2, "0"),
+    randomValues[8].toString(16).padStart(2, "0"),
+    randomValues[9].toString(16).padStart(2, "0"),
+    randomValues[10].toString(16).padStart(2, "0"),
+    randomValues[11].toString(16).padStart(2, "0"),
+    randomValues[12].toString(16).padStart(2, "0"),
+    randomValues[13].toString(16).padStart(2, "0"),
+    randomValues[14].toString(16).padStart(2, "0"),
+    randomValues[15].toString(16).padStart(2, "0")
+  ].join("").replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, "$1-$2-$3-$4-$5");
 }
 
-function generatePASSWD(length = 12) {
-  const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let password = "";
-  const randomValues = crypto.getRandomValues(new Uint8Array(length));
-  
-  for (let i = 0; i < length; i++) {
-    password += charset[randomValues[i] % charset.length];
-  }
-  
-  return password;
-}
+
 async function vlessOverWSHandler(request) {
 	const webSocketPair = new WebSocketPair();
 	const [client, webSocket] = Object.values(webSocketPair);
