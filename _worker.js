@@ -18,14 +18,15 @@ async function handleRequest(request) {
     const data = await request.json()
 
     const { username } = data
+    const uuid = generateUUID() // Generate UUID untuk akun VLESS
     const customDomainUrl = `${username}.ari-andika.site`
 
     // Tambahkan DNS record ke Cloudflare
     const dnsResponse = await createCloudflareDNSRecord(customDomainUrl)
 
-    // Mengembalikan custom domain jika berhasil
+    // Mengembalikan custom domain jika sukses
     if (dnsResponse.success) {
-      return new Response(JSON.stringify({ customDomainUrl }), {
+      return new Response(JSON.stringify({ customDomainUrl, uuid }), {
         headers: { 'Content-Type': 'application/json' }
       })
     } else {
@@ -39,11 +40,20 @@ async function handleRequest(request) {
   return new Response('Not Found', { status: 404 })
 }
 
-// Fungsi untuk menambahkan DNS record CNAME ke Cloudflare
+// Fungsi untuk membuat UUID unik
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0,
+          v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+// Fungsi untuk menambahkan DNS record ke Cloudflare
 async function createCloudflareDNSRecord(customDomainUrl) {
-  const apiToken = 'N64dCpz_OhKDsC2DetlG2s50qU52qRK-Hl2b1k_v';  // Token API Cloudflare
-  const zoneId = 'YOUR_ZONE_ID'; // Ganti dengan Zone ID Anda
-  
+  const apiToken = 'N64dCpz_OhKDsC2DetlG2s50qU52qRK-Hl2b1k_v'  // Ganti dengan token API yang valid
+  const zoneId = 'YOUR_ZONE_ID' // ID Zona DNS untuk domain Anda (ganti dengan Zone ID yang benar)
+
   const recordData = {
     type: 'CNAME', // Tipe record yang digunakan
     name: customDomainUrl, // Nama domain yang akan ditambahkan
@@ -100,6 +110,7 @@ async function generateForm(url) {
             <div id="result" style="display: none;">
                 <h3>Custom Domain Anda:</h3>
                 <a id="customDomain" target="_blank">Kunjungi Custom Domain</a>
+                <p>UUID: <span id="uuid"></span></p>
             </div>
         </div>
 
@@ -120,9 +131,10 @@ async function generateForm(url) {
                 .then(response => response.json())
                 .then(data => {
                     if (data.customDomainUrl) {
-                        // Tampilkan link custom domain
+                        // Tampilkan link custom domain dan UUID
                         document.getElementById('customDomain').href = data.customDomainUrl;
                         document.getElementById('customDomain').textContent = data.customDomainUrl;
+                        document.getElementById('uuid').textContent = data.uuid;
                         document.getElementById('result').style.display = 'block';
                     } else {
                         alert('Terjadi kesalahan. Coba lagi!');
