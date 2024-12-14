@@ -26,10 +26,6 @@ async function handleRequest(request) {
     // Membuat custom domain berdasarkan username yang dimasukkan
     const customDomainUrl = `https://${username}.ari-andika.site`
 
-    // Di sini kita bisa menambahkan logika untuk menyimpan akun VLESS ke database atau sistem Anda.
-    // Misalnya, simpan akun VLESS di database (ini hanya contoh, implementasi bergantung pada sistem Anda).
-    await saveVlessAccount(username, vlessConfig)
-
     // Mengembalikan data konfigurasi VLESS dan custom domain
     return new Response(JSON.stringify({ vlessConfig, customDomainUrl }), {
       headers: { 'Content-Type': 'application/json' }
@@ -134,10 +130,4 @@ function generateVlessConfig(username, port, alterId) {
       }
     }
   `
-}
-
-// Fungsi untuk menyimpan data akun VLESS (misalnya ke database atau log)
-async function saveVlessAccount(username, vlessConfig) {
-  // Misalnya, Anda bisa menggunakan kv store Cloudflare untuk menyimpan data akun
-  await KV_NAMESPACE.put(username, JSON.stringify(vlessConfig))
 }
