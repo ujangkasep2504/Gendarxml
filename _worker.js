@@ -23,7 +23,7 @@ async function handleRequest(request) {
     // Tambahkan DNS record ke Cloudflare
     const dnsResponse = await createCloudflareDNSRecord(customDomainUrl)
 
-    // Mengembalikan custom domain
+    // Mengembalikan custom domain jika berhasil
     if (dnsResponse.success) {
       return new Response(JSON.stringify({ customDomainUrl }), {
         headers: { 'Content-Type': 'application/json' }
@@ -39,11 +39,11 @@ async function handleRequest(request) {
   return new Response('Not Found', { status: 404 })
 }
 
-// Fungsi untuk menambahkan DNS record ke Cloudflare
+// Fungsi untuk menambahkan DNS record CNAME ke Cloudflare
 async function createCloudflareDNSRecord(customDomainUrl) {
-  const apiToken = 'N64dCpz_OhKDsC2DetlG2s50qU52qRK-Hl2b1k_v'  // Ganti dengan token API yang valid
-  const zoneId = 'YOUR_ZONE_ID' // ID Zona DNS untuk domain Anda (ganti dengan Zone ID yang benar)
-
+  const apiToken = 'N64dCpz_OhKDsC2DetlG2s50qU52qRK-Hl2b1k_v';  // Token API Cloudflare
+  const zoneId = 'YOUR_ZONE_ID'; // Ganti dengan Zone ID Anda
+  
   const recordData = {
     type: 'CNAME', // Tipe record yang digunakan
     name: customDomainUrl, // Nama domain yang akan ditambahkan
