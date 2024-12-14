@@ -1,60 +1,74 @@
 export default {
   async fetch(request) {
-    // Konfigurasi server VMess
-    const VMESS_SERVER = "coba.ari-andika.site"; // Ganti dengan domain server VMess
-    const VMESS_PORT = 443; // Port server (umumnya 443 untuk TLS)
-    const PATH = "/vmess"; // Path WebSocket sesuai konfigurasi server VMess
-    const UUID = "904fccc7-7941-4a2e-99f4-0a220347a156"; // UUID untuk autentikasi
+    // Konfigurasi server VMess dan WebSocket
+    const VMESS_SERVER = "ari-andika.site";  // Gunakan domain Anda
+    const VMESS_PORT = 443;  // Port untuk koneksi TLS (biasanya 443)
+    const PATH_VMESS = "/vmess";  // Path VMess yang akan digunakan
+    const WS_SERVER = "wss://ari-andika.site";  // WebSocket menggunakan domain Anda
+    const PATH_WS = "/websocket";  // Path WebSocket yang diinginkan
+    const UUID = "904fccc7-7941-4a2e-99f4-0a220347a156"; // UUID untuk VMess
 
-    // URL koneksi WebSocket ke server VMess
-    const targetUrl = `wss://${VMESS_SERVER}:${VMESS_PORT}${PATH}`;
-
-    const upgradeHeader = request.headers.get("Upgrade");
     const url = new URL(request.url);
+    const upgradeHeader = request.headers.get("Upgrade");
 
-    // Cek apakah permintaan menggunakan WebSocket dan path sesuai
-    const websocketPath = "/websocket"; // Path WebSocket yang digunakan
-
-    if (upgradeHeader === "websocket" && url.pathname === websocketPath) {
-      // Jika WebSocket request, coba menghubungkan ke server VMess
-      try {
-        // Meneruskan koneksi WebSocket ke server VMess
-        const response = await fetch(targetUrl, {
-          method: "GET", // Menggunakan metode GET untuk WebSocket
-          headers: {
-            "Proxy-Authorization": `VMess ${UUID}`, // Header untuk autentikasi VMess
-          }
-        });
-
-        // Meneruskan data dari server VMess
-        if (response.ok) {
-          const readable = response.body;
-          return new Response(readable, {
-            status: 101,
-            headers: { "Connection": "Upgrade", "Upgrade": "websocket" },
-          });
-        } else {
-          return new Response("Failed to connect to VMess server", {
-            status: 500,
-            headers: { "Content-Type": "text/plain" },
-          });
-        }
-      } catch (error) {
-        // Jika koneksi gagal, kirimkan pesan error
-        return new Response(`Failed to connect to VMess server: ${error.message}`, {
-          status: 500,
-          headers: { "Content-Type": "text/plain" },
-        });
-      }
-    } else if (upgradeHeader === "websocket" && url.pathname === PATH) {
-      // Jika WebSocket request dengan path /vmess
-      return new Response("WebSocket connection to VMess", {
-        status: 101,
-        headers: { "Connection": "Upgrade", "Upgrade": "websocket" },
-      });
-    } else {
-      // Jika bukan permintaan WebSocket atau path tidak sesuai
-      return new Response("Not a WebSocket or VMess request", { status: 400 });
+    // Cek apakah permintaan menggunakan WebSocket
+    if (upgradeHeader === "websocket" && url.pathname === PATH_WS) {
+      // Koneksi WebSocket
+      return await handleWebSocket(request);
+    } 
+    
+    // Cek apakah permintaan untuk path VMess
+    if (url.pathname === PATH_VMESS) {
+      // Koneksi VMess
+      return await handleVMess(request);
     }
+
+    // Jika bukan WebSocket atau VMess, kembalikan status 400
+    return new Response("Not a WebSocket or VMess request", { status: 400 });
   },
 };
+
+// Fungsi untuk menangani koneksi WebSocket
+async function handleWebSocket(request) {
+  try {
+    // Proses untuk menghubungkan ke WebSocket server
+    const response = await fetch(WS_SERVER);
+
+    // Mengembalikan status keberhasilan koneksi
+    if (response.ok) {
+      return new Response("WebSocket connection established", {
+        status: 101,  // Status untuk upgrade koneksi
+        headers: { "Connection": "Upgrade", "Upgrade": "websocket" }
+      });
+    } else {
+      return new Response("Failed to connect to WebSocket server", { status: 500 });
+    }
+  } catch (error) {
+    // Jika gagal menghubungkan ke WebSocket
+    return new Response(`Failed to connect to WebSocket server: ${error.message}`, {
+      status: 500,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
+}
+
+// Fungsi untuk menangani koneksi VMess
+async function handleVMess(request) {
+  try {
+    // Contoh format VMess URL
+    const pathFixed = encodeURIComponent(PATH_VMESS);  // Encoding path
+    const vlessUrl = `vless://${UUID}@${VMESS_SERVER}:${VMESS_PORT}?encryption=none&security=tls&sni=${VMESS_SERVER}&fp=randomized&type=ws&host=${VMESS_SERVER}&path=${pathFixed}#${VMESS_SERVER}`;
+    
+    // Mengembalikan konfigurasi VMess dalam bentuk respons
+    return new Response(vlessUrl, {
+      status: 200,
+      headers: { "Content-Type": "text/plain" },
+    });
+  } catch (error) {
+    // Jika ada masalah dengan VMess
+    return new Response(`Failed to generate VMess URL: ${error.message}`, {
+      status: 500,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
+}
