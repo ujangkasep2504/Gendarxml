@@ -5,8 +5,9 @@
     
 
 Klik Disini Untuk edit Wrangler
-(https://deploy.workers.cloudflare.com/button)]
+
 https://github.com/Gendarxml/Gendarxml/edit/main/wrangler.toml
+
 
 
 
