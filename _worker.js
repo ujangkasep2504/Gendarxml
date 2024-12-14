@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pembuatan Akun Vmess</title>
+    <title>Pembuatan Akun VLESS</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -43,8 +43,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Buat Akun Vmess</h1>
-        <form id="vmessForm">
+        <h1>Buat Akun VLESS</h1>
+        <form id="vlessForm">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required>
             
@@ -57,13 +57,13 @@
             <button type="submit">Buat Akun</button>
         </form>
         <div id="result" style="margin-top: 20px; display: none;">
-            <h3>Konfigurasi Vmess Anda:</h3>
-            <pre id="vmessConfig"></pre>
+            <h3>Konfigurasi VLESS Anda:</h3>
+            <pre id="vlessConfig"></pre>
         </div>
     </div>
 
     <script>
-        document.getElementById('vmessForm').addEventListener('submit', function (e) {
+        document.getElementById('vlessForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
             const username = document.getElementById('username').value;
@@ -71,7 +71,7 @@
             const alterId = document.getElementById('alterId').value;
 
             // Kirim data ke Worker
-            fetch('https://coba.ari-andika.workers.dev/generate-vmess', {
+            fetch('https://coba.ari-andika.workers.dev/generate-vless', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -80,8 +80,8 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.vmessConfig) {
-                    document.getElementById('vmessConfig').textContent = data.vmessConfig;
+                if (data.vlessConfig) {
+                    document.getElementById('vlessConfig').textContent = data.vlessConfig;
                     document.getElementById('result').style.display = 'block';
                 } else {
                     alert('Terjadi kesalahan. Coba lagi!');
