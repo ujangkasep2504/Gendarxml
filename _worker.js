@@ -20,14 +20,16 @@ async function handleRequest(request) {
     // Mengambil data dari request
     const { username, port, alterId } = data
 
-    // Membuat konfigurasi VLESS
+    // Menghasilkan konfigurasi VLESS
     const vlessConfig = generateVlessConfig(username, port, alterId)
 
-    // Membentuk URL custom domain berdasarkan username yang dimasukkan
+    // Membuat custom domain berdasarkan username yang dimasukkan
     const customDomainUrl = `https://${username}.ari-andika.site`
 
-    // Redirect ke custom domain yang mengandung username
-    return Response.redirect(customDomainUrl, 303)
+    // Mengembalikan data konfigurasi VLESS dan custom domain
+    return new Response(JSON.stringify({ vlessConfig, customDomainUrl }), {
+      headers: { 'Content-Type': 'application/json' }
+    })
   }
 
   return new Response('Not Found', { status: 404 })
@@ -49,6 +51,8 @@ async function generateForm(url) {
             input[type="text"], input[type="number"], button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: 1px solid #ccc; }
             button { background-color: #4CAF50; color: white; cursor: pointer; }
             button:hover { background-color: #45a049; }
+            #result { margin-top: 20px; }
+            pre { background-color: #f1f1f1; padding: 15px; border-radius: 5px; }
         </style>
     </head>
     <body>
@@ -67,9 +71,13 @@ async function generateForm(url) {
                 
                 <button type="submit">Buat Akun</button>
             </form>
-            <div id="result" style="margin-top: 20px; display: none;">
+
+            <!-- Hasil Akun VLESS dan Custom Domain akan ditampilkan di sini -->
+            <div id="result" style="display: none;">
                 <h3>Konfigurasi VLESS Anda:</h3>
                 <pre id="vlessConfig"></pre>
+                <h3>Custom Domain Anda:</h3>
+                <a id="customDomain" target="_blank">Kunjungi Custom Domain</a>
             </div>
         </div>
 
@@ -81,7 +89,7 @@ async function generateForm(url) {
                 const port = document.getElementById('port').value;
                 const alterId = document.getElementById('alterId').value;
 
-                // Kirim data ke custom domain Worker
+                // Kirim data ke worker untuk membuat akun VLESS
                 fetch('/create-account', {
                     method: 'POST',
                     headers: {
@@ -92,7 +100,10 @@ async function generateForm(url) {
                 .then(response => response.json())
                 .then(data => {
                     if (data.vlessConfig) {
+                        // Tampilkan konfigurasi VLESS dan link custom domain
                         document.getElementById('vlessConfig').textContent = data.vlessConfig;
+                        document.getElementById('customDomain').href = data.customDomainUrl;
+                        document.getElementById('customDomain').textContent = data.customDomainUrl;
                         document.getElementById('result').style.display = 'block';
                     } else {
                         alert('Terjadi kesalahan. Coba lagi!');
