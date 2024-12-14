@@ -24,7 +24,7 @@ async function handleRequest(request) {
     const vlessConfig = generateVlessConfig(username, port, alterId)
 
     // Membuat custom domain berdasarkan username yang dimasukkan
-    const customDomainUrl = `https://${username}.quiz.vidio.com.ari-andika.site`
+    const customDomainUrl = `https://${username}.ari-andika.site`
 
     // Mengembalikan data konfigurasi VLESS dan custom domain
     return new Response(JSON.stringify({ vlessConfig, customDomainUrl }), {
