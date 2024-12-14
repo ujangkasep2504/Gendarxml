@@ -4,9 +4,11 @@ addEventListener('fetch', event => {
 
 // Fungsi untuk menangani request ke worker
 async function handleRequest(request) {
+  const url = new URL(request.url)
+
   // Cek apakah ini request GET untuk menampilkan form HTML
   if (request.method === 'GET') {
-    return new Response(await generateForm(), {
+    return new Response(await generateForm(url), {
       headers: { 'Content-Type': 'text/html' }
     })
   }
@@ -21,17 +23,18 @@ async function handleRequest(request) {
     // Membuat konfigurasi VLESS
     const vlessConfig = generateVlessConfig(username, port, alterId)
 
-    // Kembali ke client dengan data konfigurasi
-    return new Response(JSON.stringify({ vlessConfig }), {
-      headers: { 'Content-Type': 'application/json' }
-    })
+    // Membentuk URL custom domain berdasarkan username yang dimasukkan
+    const customDomainUrl = `https://${username}.ari-andika.site`
+
+    // Redirect ke custom domain yang mengandung username
+    return Response.redirect(customDomainUrl, 303)
   }
 
   return new Response('Not Found', { status: 404 })
 }
 
 // Fungsi untuk menghasilkan form HTML
-async function generateForm() {
+async function generateForm(url) {
   return `
     <!DOCTYPE html>
     <html lang="en">
@@ -51,6 +54,7 @@ async function generateForm() {
     <body>
         <div class="container">
             <h1>Buat Akun VLESS</h1>
+            
             <form id="vlessForm">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
