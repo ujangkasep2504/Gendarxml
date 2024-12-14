@@ -18,10 +18,10 @@ async function handleRequest(request) {
     const data = await request.json()
 
     // Mengambil data dari request
-    const { username, port, alterId } = data
+    const { username } = data
 
     // Menghasilkan konfigurasi VLESS
-    const vlessConfig = generateVlessConfig(username, port, alterId)
+    const vlessConfig = generateVlessConfig(username)
 
     // Membuat custom domain berdasarkan username yang dimasukkan
     const customDomainUrl = `https://${username}.ari-andika.site`
@@ -48,7 +48,7 @@ async function generateForm(url) {
             body { font-family: Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; }
             .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: white; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); border-radius: 8px; margin-top: 50px; }
             h1 { text-align: center; }
-            input[type="text"], input[type="number"], button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: 1px solid #ccc; }
+            input[type="text"], button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: 1px solid #ccc; }
             button { background-color: #4CAF50; color: white; cursor: pointer; }
             button:hover { background-color: #45a049; }
             #result { margin-top: 20px; }
@@ -62,12 +62,6 @@ async function generateForm(url) {
             <form id="vlessForm">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
-                
-                <label for="port">Port</label>
-                <input type="number" id="port" name="port" required>
-                
-                <label for="alterId">AlterId</label>
-                <input type="number" id="alterId" name="alterId" required>
                 
                 <button type="submit">Buat Akun</button>
             </form>
@@ -86,8 +80,6 @@ async function generateForm(url) {
                 e.preventDefault();
 
                 const username = document.getElementById('username').value;
-                const port = document.getElementById('port').value;
-                const alterId = document.getElementById('alterId').value;
 
                 // Kirim data ke worker untuk membuat akun VLESS
                 fetch('/create-account', {
@@ -95,7 +87,7 @@ async function generateForm(url) {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ username, port, alterId })
+                    body: JSON.stringify({ username })
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -120,14 +112,11 @@ async function generateForm(url) {
 }
 
 // Fungsi untuk menghasilkan konfigurasi VLESS
-function generateVlessConfig(username, port, alterId) {
-  return `
-    {
-      "vless": {
-        "username": "${username}",
-        "port": ${port},
-        "alterId": ${alterId}
-      }
+function generateVlessConfig(username) {
+  return {
+    vless: {
+      username: username,
+      port: 443 // Anda bisa menyesuaikan port jika diperlukan
     }
-  `
+  }
 }
