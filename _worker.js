@@ -80,7 +80,7 @@
       document.getElementById('message').innerText = '';
 
       try {
-        const response = await fetch('http://dalok.ari-andika.workers.dev', { // Ganti dengan URL Cloudflare Worker kamu
+        const response = await fetch('https://your-worker-name.workers.dev', { // Ganti dengan URL Cloudflare Worker kamu
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
