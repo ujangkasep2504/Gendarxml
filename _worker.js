@@ -11,9 +11,9 @@ export default {
     const url = new URL(request.url);
     const upgradeHeader = request.headers.get("Upgrade");
 
-    // Debugging - Menampilkan path dan upgrade header
-    console.log(`Request URL: ${url.pathname}`);
-    console.log(`Upgrade Header: ${upgradeHeader}`);
+    // Log request URL dan upgrade header untuk debugging
+    console.log("Request URL: " + url.pathname);
+    console.log("Upgrade Header: " + upgradeHeader);
 
     // Cek apakah permintaan menggunakan WebSocket
     if (upgradeHeader === "websocket" && url.pathname === PATH_WS) {
@@ -28,6 +28,7 @@ export default {
     }
 
     // Jika bukan WebSocket atau VMess, kembalikan status 400
+    console.log("Not a WebSocket or VMess request.");
     return new Response("Not a WebSocket or VMess request", { status: 400 });
   },
 };
