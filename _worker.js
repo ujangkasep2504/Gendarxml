@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buat Akun VLESS</title>
+  <title>Buat Akun Trojan</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -24,6 +24,12 @@
     h1 {
       text-align: center;
       font-size: 24px;
+      color: #333;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
     }
     input {
       width: 100%;
@@ -54,10 +60,10 @@
 <body>
 
   <div class="container">
-    <h1>Buat Akun VLESS</h1>
-    <form id="vlessForm">
-      <label for="domain">Domain:</label>
-      <input type="text" id="domain" name="domain" required placeholder="Masukkan domain">
+    <h1>Buat Akun Trojan</h1>
+    <form id="trojanForm">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required placeholder="Masukkan username">
 
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required placeholder="Masukkan password">
@@ -68,10 +74,10 @@
   </div>
 
   <script>
-    document.getElementById('vlessForm').addEventListener('submit', async function(event) {
+    document.getElementById('trojanForm').addEventListener('submit', async function(event) {
       event.preventDefault();
 
-      const domain = document.getElementById('domain').value;
+      const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
 
       const messageElement = document.getElementById('message');
@@ -79,12 +85,13 @@
       messageElement.style.color = 'blue';
 
       try {
-        const response = await fetch('https://your-worker-name.workers.dev', { // Ganti dengan URL Worker Anda
+        // Kirim data ke server
+        const response = await fetch('https://your-server-endpoint.com/trojan', { // Ganti dengan URL Worker/Server Anda
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ domain, password })
+          body: JSON.stringify({ username, password }),
         });
 
         const result = await response.json();
@@ -93,7 +100,7 @@
           messageElement.style.color = 'green';
           messageElement.innerHTML = `
             <p>${result.message}</p>
-            <pre>${JSON.stringify(result.vlessConfig, null, 2)}</pre>
+            <pre>${JSON.stringify(result.config, null, 2)}</pre>
           `;
         } else {
           throw new Error(result.message || 'Terjadi kesalahan.');
