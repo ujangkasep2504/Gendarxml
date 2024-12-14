@@ -2,6 +2,14 @@
            wrangler.toml
     contoh: name = "gendarxmlb" # todo
     Selanjutnya Klik Deploy Di bawah
+    
+
+Klik Disini Untuk edit Wrangler
+
+https://github.com/Gendarxml/Gendarxml/edit/main/wrangler.toml
+
+
+
 
 KLIK DEPLOY
 
