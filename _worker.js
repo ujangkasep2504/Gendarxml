@@ -80,7 +80,7 @@
       document.getElementById('message').innerText = '';
 
       try {
-        const response = await fetch('https://vless.example.com', { // Ganti dengan custom domain yang sudah dikonfigurasi
+        const response = await fetch('https://your-worker-url.workers.dev', { // Ganti dengan URL Cloudflare Worker kamu
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
