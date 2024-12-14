@@ -5,7 +5,7 @@
     
 
 Klik Disini Untuk edit Wrangler
-
+<b> <fg=b0dc143c>
 https://github.com/Gendarxml/Gendarxml/edit/main/wrangler.toml
 
 
