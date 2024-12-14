@@ -1,148 +1,107 @@
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request))
-})
-
-// Fungsi untuk menangani request ke worker
-async function handleRequest(request) {
-  const url = new URL(request.url)
-
-  // Cek apakah ini request GET untuk menampilkan form HTML
-  if (request.method === 'GET') {
-    return new Response(await generateForm(url), {
-      headers: { 'Content-Type': 'text/html' }
-    })
-  }
-
-  // Cek apakah ini request POST untuk menerima data form
-  if (request.method === 'POST' && request.url.endsWith('/create-account')) {
-    const data = await request.json()
-
-    const { username } = data
-    const customDomainUrl = `${username}.ari-andika.site`
-
-    // Tambahkan DNS record ke Cloudflare
-    const dnsResponse = await createCloudflareDNSRecord(customDomainUrl)
-
-    // Mengembalikan custom domain
-    if (dnsResponse.success) {
-      return new Response(JSON.stringify({ customDomainUrl }), {
-        headers: { 'Content-Type': 'application/json' }
-      })
-    } else {
-      return new Response(JSON.stringify({ error: 'Gagal membuat DNS record' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      })
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buat Akun VLESS</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-  }
-
-  return new Response('Not Found', { status: 404 })
-}
-
-// Fungsi untuk menambahkan DNS record ke Cloudflare
-async function createCloudflareDNSRecord(customDomainUrl) {
-  const apiToken = 'N64dCpz_OhKDsC2DetlG2s50qU52qRK-Hl2b1k_v'  // Ganti dengan token API yang valid
-  const zoneId = '6667f4f556a99898afdadf0a48749568' // Ganti dengan Zone ID yang baru
-
-  const recordData = {
-    type: 'CNAME', // Tipe record yang digunakan
-    name: customDomainUrl, // Nama domain yang akan ditambahkan
-    content: 'andisaputra', // Konten CNAME (misalnya subdomain atau domain tujuan)
-    ttl: 3600, // Waktu hidup record dalam detik
-    proxied: false // Nonaktifkan proxy jika tidak ingin menggunakan Cloudflare proxy
-  }
-
-  try {
-    const response = await fetch(`https://api.cloudflare.com/client/v4/zones/${zoneId}/dns_records`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(recordData)
-    })
-
-    const result = await response.json()
-
-    if (!response.ok) {
-      throw new Error(`Error: ${result.errors.map(err => err.message).join(', ')}`)
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 400px;
     }
+    h1 {
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .message {
+      margin-top: 10px;
+      text-align: center;
+      color: red;
+    }
+  </style>
+</head>
+<body>
 
-    return result.success ? result : { success: false, message: 'Gagal menambahkan DNS record' }
-  } catch (error) {
-    return { success: false, message: `Terjadi kesalahan: ${error.message}` }
-  }
-}
+  <div class="container">
+    <h1>Buat Akun VLESS</h1>
+    <form id="vlessForm">
+      <label for="domain">Domain:</label>
+      <input type="text" id="domain" name="domain" required>
 
-// Fungsi untuk menghasilkan form HTML
-async function generateForm(url) {
-  return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Pembuatan Akun VLESS</title>
-        <style>
-            body { font-family: Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; }
-            .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: white; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); border-radius: 8px; margin-top: 50px; }
-            h1 { text-align: center; }
-            input[type="text"], button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: 1px solid #ccc; }
-            button { background-color: #4CAF50; color: white; cursor: pointer; }
-            button:hover { background-color: #45a049; }
-            #result { margin-top: 20px; }
-            pre { background-color: #f1f1f1; padding: 15px; border-radius: 5px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>Buat Akun VLESS</h1>
-            
-            <form id="vlessForm">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
-                
-                <button type="submit">Buat Akun</button>
-            </form>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
 
-            <!-- Hasil Custom Domain akan ditampilkan di sini -->
-            <div id="result" style="display: none;">
-                <h3>Custom Domain Anda:</h3>
-                <a id="customDomain" target="_blank">Kunjungi Custom Domain</a>
-            </div>
-        </div>
+      <button type="submit">Buat Akun</button>
+    </form>
 
-        <script>
-            document.getElementById('vlessForm').addEventListener('submit', function (e) {
-                e.preventDefault();
+    <div class="message" id="message"></div>
+  </div>
 
-                const username = document.getElementById('username').value;
+  <script>
+    document.getElementById('vlessForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
 
-                // Kirim data ke worker untuk membuat akun VLESS
-                fetch('/create-account', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.customDomainUrl) {
-                        // Tampilkan link custom domain
-                        document.getElementById('customDomain').href = data.customDomainUrl;
-                        document.getElementById('customDomain').textContent = data.customDomainUrl;
-                        document.getElementById('result').style.display = 'block';
-                    } else {
-                        alert('Terjadi kesalahan. Coba lagi!');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
-        </script>
-    </body>
-    </html>
-  `
-}
+      const domain = document.getElementById('domain').value;
+      const password = document.getElementById('password').value;
+
+      // Clear previous message
+      document.getElementById('message').innerText = '';
+
+      try {
+        const response = await fetch('https://vless.example.com', { // Ganti dengan custom domain yang sudah dikonfigurasi
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ domain, password })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          document.getElementById('message').style.color = 'green';
+          document.getElementById('message').innerText = 'Akun berhasil dibuat!';
+        } else {
+          throw new Error(result.message || 'Terjadi kesalahan');
+        }
+      } catch (error) {
+        document.getElementById('message').style.color = 'red';
+        document.getElementById('message').innerText = 'Gagal membuat akun: ' + error.message;
+      }
+    });
+  </script>
+
+</body>
+</html>
