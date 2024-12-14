@@ -12,7 +12,19 @@ KLIK DEPLOY
 Jika sudah Maka masukan ID Cloudflare Anda
 Dan juga Token Cloudflare anda
 
-Tutorial Masukan Token
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Jika bingung Bisa tanya lewat 
 
