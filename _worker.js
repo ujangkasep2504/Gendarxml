@@ -29,7 +29,7 @@ export default {
 // Fungsi untuk membuka koneksi WebSocket tanpa header protokol
 async function connectWebSocket(url, uuid) {
   const headers = {
-    "Proxy-Authorization": `VMess ${uuid}`, // Gunakan UUID untuk autentikasi
+    "Proxy-Authorization": `VMess ${uuid}`, // 904fccc7-7941-4a2e-99f4-0a220347a156
   };
 
   const webSocket = new WebSocket(url, headers);
