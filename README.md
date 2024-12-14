@@ -3,7 +3,9 @@
     contoh: name = "gendarxmlb" # todo
     Selanjutnya Klik Deploy Di bawah
     
+Edit Wrangler Di bawah
 
+https://github.com/Gendarxml/Gendarxml/blob/main/wrangler.toml
 
 KLIK DEPLOY
 
