@@ -43,3 +43,29 @@ export default {
     }
   },
 };
+{
+  "tag": "vless-inbound",
+  "protocol": "vless",
+  "settings": {
+    "clients": [
+      {
+        "id": "your-uuid",
+        "level": 0,
+        "email": "user@example.com"
+      }
+    ],
+    "decryption": "none"
+  },
+  "streamSettings": {
+    "network": "ws",
+    "security": "tls",
+    "tlsSettings": {
+      "certificates": [
+        {
+          "certificateFile": "/path/to/cert.pem",
+          "keyFile": "/path/to/key.pem"
+        }
+      ]
+    }
+  }
+}
