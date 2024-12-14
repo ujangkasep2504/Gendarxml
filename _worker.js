@@ -17,22 +17,52 @@ async function handleRequest(request) {
   if (request.method === 'POST' && request.url.endsWith('/create-account')) {
     const data = await request.json()
 
-    // Mengambil data dari request
     const { username } = data
+    const customDomainUrl = `${username}.ari-andika.site`
 
-    // Menghasilkan konfigurasi VLESS
-    const vlessConfig = generateVlessConfig(username)
+    // Tambahkan DNS record ke Cloudflare
+    const dnsResponse = await createCloudflareDNSRecord(customDomainUrl)
 
-    // Membuat custom domain berdasarkan username yang dimasukkan
-    const customDomainUrl = `https://${username}.ari-andika.site`
-
-    // Mengembalikan data konfigurasi VLESS dan custom domain
-    return new Response(JSON.stringify({ vlessConfig, customDomainUrl }), {
-      headers: { 'Content-Type': 'application/json' }
-    })
+    // Mengembalikan custom domain
+    if (dnsResponse.success) {
+      return new Response(JSON.stringify({ customDomainUrl }), {
+        headers: { 'Content-Type': 'application/json' }
+      })
+    } else {
+      return new Response(JSON.stringify({ error: 'Gagal membuat DNS record' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    }
   }
 
   return new Response('Not Found', { status: 404 })
+}
+
+// Fungsi untuk menambahkan DNS record ke Cloudflare
+async function createCloudflareDNSRecord(customDomainUrl) {
+  const apiToken = 'N64dCpz_OhKDsC2DetlG2s50qU52qRK-Hl2b1k_v'  // Ganti dengan token API yang valid
+  const zoneId = 'YOUR_ZONE_ID' // ID Zona DNS untuk domain Anda (ganti dengan Zone ID yang benar)
+
+  const recordData = {
+    type: 'CNAME', // Tipe record yang digunakan
+    name: customDomainUrl, // Nama domain yang akan ditambahkan
+    content: 'andisaputra', // Konten CNAME (misalnya subdomain atau domain tujuan)
+    ttl: 3600, // Waktu hidup record dalam detik
+    proxied: false // Nonaktifkan proxy jika tidak ingin menggunakan Cloudflare proxy
+  }
+
+  const response = await fetch(`https://api.cloudflare.com/client/v4/zones/${zoneId}/dns_records`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(recordData)
+  })
+
+  const result = await response.json()
+  return result.success ? result : { success: false, message: 'Gagal menambahkan DNS record' }
 }
 
 // Fungsi untuk menghasilkan form HTML
@@ -66,10 +96,8 @@ async function generateForm(url) {
                 <button type="submit">Buat Akun</button>
             </form>
 
-            <!-- Hasil Akun VLESS dan Custom Domain akan ditampilkan di sini -->
+            <!-- Hasil Custom Domain akan ditampilkan di sini -->
             <div id="result" style="display: none;">
-                <h3>Konfigurasi VLESS Anda:</h3>
-                <pre id="vlessConfig"></pre>
                 <h3>Custom Domain Anda:</h3>
                 <a id="customDomain" target="_blank">Kunjungi Custom Domain</a>
             </div>
@@ -91,9 +119,8 @@ async function generateForm(url) {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.vlessConfig) {
-                        // Tampilkan konfigurasi VLESS dan link custom domain
-                        document.getElementById('vlessConfig').textContent = JSON.stringify(data.vlessConfig, null, 2);
+                    if (data.customDomainUrl) {
+                        // Tampilkan link custom domain
                         document.getElementById('customDomain').href = data.customDomainUrl;
                         document.getElementById('customDomain').textContent = data.customDomainUrl;
                         document.getElementById('result').style.display = 'block';
@@ -109,14 +136,4 @@ async function generateForm(url) {
     </body>
     </html>
   `
-}
-
-// Fungsi untuk menghasilkan konfigurasi VLESS
-function generateVlessConfig(username) {
-  return {
-    vless: {
-      username: username,
-      port: 443 // Anda bisa menyesuaikan port jika diperlukan
-    }
-  }
 }
