@@ -1,112 +1,85 @@
-export default {
-  async fetch(request) {
-    // Konfigurasi server WebSocket dan VMess
-    const WS_SERVER = "ws://your-server-ip:8080";  // Ganti dengan IP dan port WebSocket server Anda
-    const VMESS_PATH = "/vmess";  // Path untuk mengakses VMess config
-    const WS_PATH = "/websocket";  // Path untuk mengakses WebSocket
-
-    // Cek apakah permintaan menggunakan WebSocket
-    const upgradeHeader = request.headers.get("Upgrade");
-    const url = new URL(request.url);
-
-    if (upgradeHeader === "websocket" && url.pathname === WS_PATH) {
-      // Jika permintaan adalah WebSocket, arahkan ke server WebSocket eksternal
-      try {
-        const wsResponse = await fetch(WS_SERVER);
-
-        if (wsResponse.ok) {
-          return new Response("Connected to WebSocket server", {
-            status: 101,  // Status untuk upgrade koneksi WebSocket
-            headers: { "Connection": "Upgrade", "Upgrade": "websocket" }
-          });
-        } else {
-          return new Response("Failed to connect to WebSocket server", {
-            status: 500,
-            headers: { "Content-Type": "text/plain" }
-          });
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jual Kuota Internet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
         }
-      } catch (error) {
-        return new Response(`Error connecting to WebSocket server: ${error.message}`, {
-          status: 500,
-          headers: { "Content-Type": "text/plain" }
-        });
-      }
-    } else if (url.pathname === VMESS_PATH) {
-      // Jika permintaan adalah untuk VMess
-      try {
-        const allConfigVless = await getVmessConfig(request.headers.get("Host"));
-        return new Response(allConfigVless, {
-          status: 200,
-          headers: { "Content-Type": "text/html;charset=utf-8" }
-        });
-      } catch (error) {
-        return new Response(`Error fetching VMess config: ${error.message}`, {
-          status: 500,
-          headers: { "Content-Type": "text/plain" }
-        });
-      }
-    } else {
-      // Jika path tidak cocok untuk WebSocket atau VMess
-      return new Response("Not a WebSocket or VMess request", {
-        status: 400,
-        headers: { "Content-Type": "text/plain" }
-      });
-    }
-  }
-};
+        header {
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .card h2 {
+            color: #3498db;
+        }
+        .price {
+            font-size: 1.5em;
+            color: #2ecc71;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
 
-// Fungsi untuk mengambil konfigurasi VMess
-async function getVmessConfig(hostName) {
-  try {
-    // Konfigurasi proxy
-    const listProxy = [
-      { path: "/MALASIA", proxy: "45.195.69.98:30726" },
-      { path: "/INDONESIA", proxy: "172.232.239.151:587" },
-      { path: "/SINGAPORE", proxy: "143.198.213.197:8443" },
-      // Tambah proxy lain sesuai kebutuhan
-    ];
+    <header>
+        <h1>Jual Kuota Internet</h1>
+        <p>Temukan Paket Kuota Terbaik untuk Anda!</p>
+    </header>
 
-    let vlessConfigs = "";
-    for (const entry of listProxy) {
-      const { path, proxy } = entry;
-      const [proxyAddress, proxyPort] = proxy.split(":");
-
-      // Mendapatkan informasi lokasi dari ip-api
-      const response = await fetch(`http://ip-api.com/json/${proxyAddress}`);
-      const data = await response.json();
-
-      const pathFixed = encodeURIComponent(path);
-      const vlessTls = `vless://${generateUUIDv4()}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=${pathFixed}#${hostName} (${data.countryCode})`;
-      const vlessNtls = `vless://${generateUUIDv4()}@${hostName}:80?path=${pathFixed}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws#${data.isp} (${data.countryCode})`;
-
-      const vlessTlsFixed = vlessTls.replace(/ /g, "+");
-      const vlessNtlsFixed = vlessNtls.replace(/ /g, "+");
-
-      vlessConfigs += `
-        <div class="config-section">
-          <p><strong>ISP: ${data.isp} (${data.countryCode})</strong></p>
-          <div>
-            <h3>TLS:</h3>
-            <p class="config">${vlessTlsFixed}</p>
-          </div>
-          <div>
-            <h3>NTLS:</h3>
-            <p class="config">${vlessNtlsFixed}</p>
-          </div>
+    <div class="container">
+        <div class="card">
+            <h2>Paket 5GB</h2>
+            <p>Kuota data untuk kebutuhan sehari-hari.</p>
+            <p class="price">Rp 50.000</p>
+            <a href="#" class="btn">Beli Sekarang</a>
         </div>
-        <hr class="config-divider" />
-      `;
-    }
 
-    return vlessConfigs;
-  } catch (error) {
-    throw new Error(`Failed to fetch VMess config: ${error.message}`);
-  }
-}
+        <div class="card">
+            <h2>Paket 10GB</h2>
+            <p>Kuota data untuk streaming dan browsing.</p>
+            <p class="price">Rp 90.000</p>
+            <a href="#" class="btn">Beli Sekarang</a>
+        </div>
 
-// Fungsi untuk menghasilkan UUID
-function generateUUIDv4() {
-  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-  );
-}
+        <div class="card">
+            <h2>Paket 20GB</h2>
+            <p>Kuota data untuk kebutuhan lebih banyak.</p>
+            <p class="price">Rp 150.000</p>
+            <a href="#" class="btn">Beli Sekarang</a>
+        </div>
+    </div>
+
+</body>
+</html>
