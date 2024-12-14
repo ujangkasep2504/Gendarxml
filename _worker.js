@@ -1,23 +1,24 @@
 export default {
   async fetch(request) {
-    // Konfigurasi server Trojan
-    const TROJAN_SERVER = "ari-andika.site"; // Ganti dengan domain/IP server Trojan Anda
-    const TROJAN_PORT = 443; // Port server Trojan (biasanya 443 untuk TLS)
-    const PASSWORD = "your-password"; // 904fccc7-7941-4a2e-99f4-0a220347a156
+    // Konfigurasi server VMess
+    const VMESS_SERVER = "coba.ari-andika.site"; // Ganti dengan domain/IP server VMess
+    const VMESS_PORT = 443; // Port server VMess (biasanya 443 untuk TLS)
+    const PATH = "/vmess"; // Path WebSocket server VMess
+    const UUID = "your-uuid"; // Gendar
 
     // URL untuk koneksi WebSocket
-    const targetUrl = `wss://${TROJAN_SERVER}:${TROJAN_PORT}`;
+    const targetUrl = `wss://${VMESS_SERVER}:${VMESS_PORT}${PATH}`;
 
     try {
-      // Membuka koneksi WebSocket ke server Trojan
-      const webSocket = await connectWebSocket(targetUrl, PASSWORD);
+      // Membuka koneksi WebSocket ke server VMess
+      const webSocket = await connectWebSocket(targetUrl, UUID);
 
-      // Meneruskan data dari klien ke server Trojan
+      // Meneruskan data dari klien ke server VMess
       const { readable, writable } = webSocket;
       return new Response(readable, { status: 101, headers: { Connection: "Upgrade" } });
 
     } catch (error) {
-      return new Response(`Failed to connect to Trojan server: ${error.message}`, {
+      return new Response(`Failed to connect to VMess server: ${error.message}`, {
         status: 500,
         headers: { "Content-Type": "text/plain" },
       });
@@ -25,12 +26,12 @@ export default {
   },
 };
 
-// Fungsi untuk membuat koneksi WebSocket dengan autentikasi Trojan
-async function connectWebSocket(url, password) {
-  // Header untuk autentikasi Trojan
+// Fungsi untuk membuat koneksi WebSocket dengan autentikasi VMess
+async function connectWebSocket(url, uuid) {
+  // Header untuk autentikasi VMess
   const headers = {
-    "Proxy-Authorization": `Basic ${btoa(password)}`,
-    "Sec-WebSocket-Protocol": "trojan",
+    "Proxy-Authorization": `VMess ${uuid}`,
+    "Sec-WebSocket-Protocol": "vmess",
   };
 
   const webSocket = new WebSocket(url, headers);
