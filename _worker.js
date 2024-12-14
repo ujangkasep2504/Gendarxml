@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jual Akun VPN untuk Pekerja | Pembayaran QRIS</title>
+    <title>Jual Akun VPN untuk Pekerja Profesional | Pembayaran QRIS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
@@ -97,28 +97,28 @@
 
     <div class="header">
         <h1>Akun VPN untuk Pekerja Profesional</h1>
-        <p>Pastikan keamanan data dan produktivitas Anda dengan VPN Premium</p>
+        <p>Keamanan dan Kecepatan Internet untuk Pekerja Jarak Jauh dan Profesional</p>
     </div>
 
     <div class="container">
         <div class="title">
-            <h2>Aktivasi Akun VPN Premium untuk Pekerja</h2>
+            <h2>Akun VPN Premium untuk Pekerja Profesional</h2>
         </div>
 
         <div class="product">
             <img src="vpn-image.jpg" alt="Akun VPN">
             <div class="product-info">
-                <h3>VPN Premium - Akses Cepat & Aman</h3>
-                <p>Dengan VPN ini, Anda dapat bekerja dengan aman di berbagai jaringan publik, menjaga data pribadi Anda tetap terjaga, serta mengakses sumber daya penting dengan kecepatan tinggi.</p>
-                <p>VPN ini sangat ideal untuk pekerja jarak jauh, profesional yang sering bepergian, atau Anda yang membutuhkan akses yang aman dan cepat ke data perusahaan dari mana saja.</p>
+                <h3>VPN Premium - Akses Aman dan Cepat</h3>
+                <p>VPN ini dirancang untuk pekerja profesional yang membutuhkan koneksi yang aman dan cepat, terutama ketika bekerja dari rumah atau menggunakan jaringan publik. Nikmati kecepatan tinggi, privasi yang lebih baik, dan akses tanpa batas ke sumber daya penting kapan saja dan di mana saja.</p>
+                <p>Ideal untuk pekerja jarak jauh, konsultan, dan profesional lainnya yang memerlukan akses aman ke data perusahaan serta perlindungan dari ancaman online.</p>
                 <div class="price">Rp 150.000 / bulan</div>
                 <button class="btn-buy" onclick="buyVPN()">Beli Sekarang</button>
             </div>
         </div>
 
         <div class="qris-section">
-            <h3>Pembayaran dengan QRIS</h3>
-            <p>Scan QRIS di bawah ini untuk melakukan pembayaran dengan mudah melalui aplikasi pembayaran seperti OVO, GoPay, DANA, dan lainnya.</p>
+            <h3>Pembayaran Mudah dengan QRIS</h3>
+            <p>Scan QRIS di bawah ini untuk melakukan pembayaran dengan aplikasi dompet digital seperti OVO, GoPay, DANA, dan lainnya.</p>
             <img src="qris-example.jpg" alt="QRIS Pembayaran">
         </div>
     </div>
