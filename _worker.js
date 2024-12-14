@@ -1,71 +1,44 @@
 export default {
   async fetch(request) {
     // Konfigurasi server VLESS
-    const VLESS_SERVER = "ari-andika.site"; // Ganti dengan domain/IP server VLESS
+    const VLESS_SERVER = "your-vless-server.com"; // Ganti dengan domain/IP server VLESS
     const VLESS_PORT = 443; // Port server VLESS (biasanya 443 untuk TLS)
-    const UUID = "your-uuid"; // 904fccc7-7941-4a2e-99f4-0a220347a156
+    const UUID = "your-uuid"; // Ganti dengan UUID akun VLESS Anda
+    const PATH = "/vless"; // Ganti dengan path yang sesuai dengan server VLESS Anda
 
-    // Header standar VLESS untuk autentikasi
-    const vlessHeaders = {
-      "Proxy-Authorization": `VLESS ${UUID}`,
-      "Content-Type": "application/octet-stream",
-    };
-
-    // Membaca body permintaan
-    const requestBody = await request.arrayBuffer();
-
-    // Membuat koneksi ke server VLESS
-    const serverUrl = `https://${VLESS_SERVER}:${VLESS_PORT}`;
-    const options = {
-      method: "POST",
-      headers: vlessHeaders,
-      body: requestBody,
-    };
+    // Membangun URL untuk koneksi WebSocket
+    const targetUrl = `wss://${VLESS_SERVER}:${VLESS_PORT}${PATH}`;
 
     try {
-      // Meneruskan permintaan ke server VLESS
-      const response = await fetch(serverUrl, options);
+      // Membuka koneksi WebSocket
+      const webSocket = await connectWebSocket(targetUrl, UUID);
 
-      // Salin header dari respons
-      const responseHeaders = new Headers(response.headers);
+      // Meneruskan data dari klien ke server VLESS
+      const { readable, writable } = webSocket;
+      return new Response(readable, { status: 101, headers: { Connection: "Upgrade" } });
 
-      // Mengembalikan respons
-      return new Response(response.body, {
-        status: response.status,
-        headers: responseHeaders,
-      });
-    } catch (err) {
-      // Menangani kesalahan
-      return new Response(`Error connecting to VLESS server: ${err.message}`, {
+    } catch (error) {
+      return new Response(`Failed to connect to VLESS server: ${error.message}`, {
         status: 500,
         headers: { "Content-Type": "text/plain" },
       });
     }
   },
 };
-{
-  "tag": "vless-inbound",
-  "protocol": "vless",
-  "settings": {
-    "clients": [
-      {
-        "id": "your-uuid",
-        "level": 0,
-        "email": "user@example.com"
-      }
-    ],
-    "decryption": "none"
-  },
-  "streamSettings": {
-    "network": "ws",
-    "security": "tls",
-    "tlsSettings": {
-      "certificates": [
-        {
-          "certificateFile": "/path/to/cert.pem",
-          "keyFile": "/path/to/key.pem"
-        }
-      ]
-    }
-  }
+
+// Fungsi untuk membuat koneksi WebSocket dengan autentikasi VLESS
+async function connectWebSocket(url, uuid) {
+  // Header untuk autentikasi VLESS
+  const headers = {
+    "Proxy-Authorization": `VLESS ${uuid}`,
+    "Sec-WebSocket-Protocol": "vless",
+  };
+
+  const webSocket = new WebSocket(url, headers);
+
+  // Menunggu koneksi terhubung
+  return new Promise((resolve, reject) => {
+    webSocket.onopen = () => resolve(webSocket);
+    webSocket.onerror = (error) => reject(error);
+  });
 }
