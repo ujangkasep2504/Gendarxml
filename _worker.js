@@ -3,8 +3,8 @@ export default {
     // Konfigurasi server VLESS
     const VLESS_SERVER = "your-vless-server.com"; // Ganti dengan domain/IP server VLESS
     const VLESS_PORT = 443; // Port server VLESS (biasanya 443 untuk TLS)
-    const UUID = "your-uuid"; // Ganti dengan UUID akun VLESS Anda
-    const PATH = "/vless"; // Ganti dengan path yang sesuai dengan server VLESS Anda
+    const UUID = "your-uuid"; // 904fccc7-7941-4a2e-99f4-0a220347a156
+    const PATH = "/vless"; // INDONESIA
 
     // Membangun URL untuk koneksi WebSocket
     const targetUrl = `wss://${VLESS_SERVER}:${VLESS_PORT}${PATH}`;
