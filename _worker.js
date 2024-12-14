@@ -3,19 +3,31 @@ export default {
     // Konfigurasi server VMess
     const VMESS_SERVER = "coba.ari-andika.site"; // Ganti dengan domain server VMess
     const VMESS_PORT = 443; // Port server (umumnya 443 untuk TLS)
-    const PATH = "/vmess"; // "/MALASIA", proxy: "45.195.69.98:30726"
-    const UUID = "your-uuid"; // 904fccc7-7941-4a2e-99f4-0a220347a156
+    const PATH = "/vmess"; // Path WebSocket sesuai konfigurasi server VMess
+    const UUID = "904fccc7-7941-4a2e-99f4-0a220347a156"; // UUID untuk autentikasi
 
     // URL koneksi WebSocket ke server VMess
     const targetUrl = `wss://${VMESS_SERVER}:${VMESS_PORT}${PATH}`;
 
     try {
-      // Coba membuka koneksi WebSocket ke server VMess
-      const webSocket = await connectWebSocket(targetUrl, UUID);
+      // Coba membuka koneksi WebSocket ke server VMess menggunakan fetch
+      const response = await fetch(targetUrl, {
+        method: "GET", // Menggunakan metode GET untuk WebSocket
+        headers: {
+          "Proxy-Authorization": `VMess ${UUID}`, // Header untuk autentikasi VMess
+        }
+      });
 
       // Meneruskan data dari klien ke server VMess
-      const { readable, writable } = webSocket;
-      return new Response(readable, { status: 101, headers: { Connection: "Upgrade" } });
+      if (response.ok) {
+        const readable = response.body;
+        return new Response(readable, {
+          status: 101,
+          headers: { "Connection": "Upgrade" },
+        });
+      } else {
+        return new Response("Failed to connect to VMess server", { status: 500 });
+      }
     } catch (error) {
       // Jika koneksi gagal, kirimkan pesan error
       return new Response(`Failed to connect to VMess server: ${error.message}`, {
@@ -25,18 +37,3 @@ export default {
     }
   },
 };
-
-// Fungsi untuk membuka koneksi WebSocket ke server VMess tanpa header protokol
-async function connectWebSocket(url, uuid) {
-  // Hanya mengirimkan header yang diperlukan, tanpa `Sec-WebSocket-Protocol`
-  const headers = {
-    "Proxy-Authorization": `VMess ${uuid}`, // 904fccc7-7941-4a2e-99f4-0a220347a156
-  };
-
-  const webSocket = new WebSocket(url, headers);
-
-  return new Promise((resolve, reject) => {
-    webSocket.onopen = () => resolve(webSocket); // Jika berhasil, kembalikan koneksi
-    webSocket.onerror = (error) => reject(error); // Jika gagal, kembalikan error
-  });
-}
