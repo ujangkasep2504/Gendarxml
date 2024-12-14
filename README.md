@@ -5,7 +5,7 @@
     
 Edit Wrangler Di bawah
 
-https://github.com/Gendarxml/Gendarxml/blob/main/wrangler.toml
+https://github.com/Gendarxml/Gendarxml/edit/main/wrangler.toml
 
 KLIK DEPLOY
 
