@@ -3,7 +3,7 @@ export default {
     // Konfigurasi server VMess
     const VMESS_SERVER = "coba.ari-andika.site"; // Ganti dengan domain server VMess
     const VMESS_PORT = 443; // Port server (umumnya 443 untuk TLS)
-    const PATH = "/vmess"; // Path WebSocket sesuai dengan konfigurasi server VMess
+    const PATH = "/vmess"; // "/MALASIA", proxy: "45.195.69.98:30726"
     const UUID = "your-uuid"; // 904fccc7-7941-4a2e-99f4-0a220347a156
 
     // URL koneksi WebSocket ke server VMess
