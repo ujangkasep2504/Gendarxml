@@ -71,8 +71,8 @@ async function handleRequest(request) {
                       .then(response => {
                           if (response.ok) {
                               resultElement.innerHTML = '<span class="success">Subdomain ' + fullDomain + ' ditemukan dan aktif!</span>';
-                              // Langsung redirect ke subdomain
-                              window.location.href = 'https://' + fullDomain;
+                              // Menampilkan link yang bisa diklik
+                              resultElement.innerHTML += '<br><a href="https://' + fullDomain + '" target="_blank" style="font-size: 18px; color: blue; text-decoration: underline;">Klik di sini untuk melanjutkan ke ' + fullDomain + '</a>';
                           } else {
                               resultElement.innerHTML = '<span class="error">Subdomain ' + fullDomain + ' tidak ditemukan.</span>';
                           }
