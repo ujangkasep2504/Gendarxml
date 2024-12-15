@@ -64,14 +64,13 @@ async function handleRequest(request) {
                   fetch('https://' + fullDomain, { method: 'HEAD' })
                       .then(response => {
                           if (response.ok) {
-                              resultElement.innerHTML = 'https://Subdomain ' + fullDomain + ' ditemukan dan aktif!';
+                              resultElement.innerHTML = 'Subdomain ' + fullDomain + ' ditemukan dan aktif!';
                           } else {
-                              resultElement.innerHTML = 'https://Subdomain ' + fullDomain + ' SILAHKAN DI COPY ';
-                              <button onclick="resultElement.innerHTML()">Cek Subdomain</button>
+                              resultElement.innerHTML = 'Subdomain ' + fullDomain + ' tidak ditemukan.';
                           }
                       })
                       .catch(error => {
-                          resultElement.innerHTML = 'Subdomain ' + fullDomain + ' ';
+                          resultElement.innerHTML = 'Subdomain ' + fullDomain + ' tidak dapat diakses.';
                       });
               }
           </script>
