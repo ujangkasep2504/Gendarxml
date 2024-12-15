@@ -45,6 +45,23 @@ async function handleRequest(request) {
               .success {
                   color: green;
               }
+              .copy-button {
+                  padding: 10px;
+                  background-color: #008CBA;
+                  color: white;
+                  font-size: 16px;
+                  border: none;
+                  cursor: pointer;
+              }
+              .copy-button:hover {
+                  background-color: #006f8c;
+              }
+              #copy-url {
+                  width: 300px;
+                  padding: 8px;
+                  font-size: 16px;
+                  margin-top: 10px;
+              }
           </style>
       </head>
       <body>
@@ -71,8 +88,13 @@ async function handleRequest(request) {
                       .then(response => {
                           if (response.ok) {
                               resultElement.innerHTML = '<span class="success">Subdomain ' + fullDomain + ' ditemukan dan aktif!</span>';
-                              // Redirect ke subdomain yang aktif
-                              window.location.href = 'https://' + fullDomain;
+                              
+                              // Menampilkan link yang bisa diklik
+                              resultElement.innerHTML += '<br><a href="https://' + fullDomain + '" target="_blank" style="font-size: 18px; color: blue; text-decoration: underline;">Klik di sini untuk melanjutkan ke ' + fullDomain + '</a>';
+
+                              // Menambahkan input untuk salin URL dengan awalan https://
+                              resultElement.innerHTML += '<br><button class="copy-button" onclick="copyUrl()">Salin URL Subdomain</button>';
+                              resultElement.innerHTML += '<br><input type="text" id="copy-url" value="https://' + fullDomain + '" readonly>';
                           } else {
                               resultElement.innerHTML = '<span class="error">Subdomain ' + fullDomain + ' tidak ditemukan.</span>';
                           }
@@ -80,6 +102,19 @@ async function handleRequest(request) {
                       .catch(error => {
                           resultElement.innerHTML = '<span class="error">Subdomain ' + fullDomain + ' tidak dapat diakses.</span>';
                       });
+              }
+
+              // Fungsi untuk menyalin URL ke clipboard
+              function copyUrl() {
+                  var copyText = document.getElementById("copy-url");
+                  copyText.select();
+                  copyText.setSelectionRange(0, 99999); // Untuk perangkat mobile
+
+                  // Salin ke clipboard
+                  document.execCommand("copy");
+
+                  // Feedback ke user
+                  alert("URL disalin: " + copyText.value);
               }
           </script>
 
