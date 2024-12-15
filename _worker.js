@@ -49,28 +49,6 @@ async function handleRequest(request) {
               .copy-button:hover {
                   background-color: #006f8c;
               }
-              .share-button {
-                  padding: 10px;
-                  background-color: #25D366;  /* WhatsApp color */
-                  color: white;
-                  font-size: 16px;
-                  border: none;
-                  cursor: pointer;
-              }
-              .share-button:hover {
-                  background-color: #128C7E;
-              }
-              .email-button {
-                  padding: 10px;
-                  background-color: #D44638;  /* Email icon color */
-                  color: white;
-                  font-size: 16px;
-                  border: none;
-                  cursor: pointer;
-              }
-              .email-button:hover {
-                  background-color: #C1351D;
-              }
           </style>
       </head>
       <body>
@@ -107,10 +85,6 @@ async function handleRequest(request) {
 
                   // Menampilkan tombol salin
                   resultElement.innerHTML += '<br><button class="copy-button" onclick="copyUrl()">Salin URL</button>';
-
-                  // Menambahkan opsi untuk berbagi
-                  resultElement.innerHTML += '<br><button class="share-button" onclick="shareOnWhatsApp(\'' + url + '\')">Bagikan ke WhatsApp</button>';
-                  resultElement.innerHTML += '<br><button class="email-button" onclick="shareViaEmail(\'' + url + '\')">Bagikan via Email</button>';
               }
 
               // Fungsi untuk menyalin URL menggunakan Clipboard API
@@ -124,20 +98,6 @@ async function handleRequest(request) {
                   } catch (err) {
                       alert("Terjadi kesalahan saat menyalin URL.");
                   }
-              }
-
-              // Fungsi untuk berbagi di WhatsApp
-              function shareOnWhatsApp(url) {
-                  var whatsappUrl = "https://wa.me/?text=" + encodeURIComponent(url);
-                  window.open(whatsappUrl, "_blank");
-              }
-
-              // Fungsi untuk berbagi via Email
-              function shareViaEmail(url) {
-                  var emailSubject = "URL Subdomain";
-                  var emailBody = "Berikut adalah URL yang telah digenerate: " + url;
-                  var mailtoUrl = "mailto:?subject=" + encodeURIComponent(emailSubject) + "&body=" + encodeURIComponent(emailBody);
-                  window.location.href = mailtoUrl;
               }
           </script>
 
