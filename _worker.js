@@ -39,6 +39,12 @@ async function handleRequest(request) {
                   margin-top: 20px;
                   font-size: 18px;
               }
+              .link-button {
+                  background-color: #008CBA;
+              }
+              .link-button:hover {
+                  background-color: #0077B3;
+              }
           </style>
       </head>
       <body>
@@ -64,7 +70,8 @@ async function handleRequest(request) {
                   fetch('https://' + fullDomain, { method: 'HEAD' })
                       .then(response => {
                           if (response.ok) {
-                              resultElement.innerHTML = 'Subdomain ' + fullDomain + ' ditemukan dan aktif!';
+                              resultElement.innerHTML = 'Subdomain ' + fullDomain + ' ditemukan dan aktif! ';
+                              resultElement.innerHTML += '<br><button class="link-button" onclick="window.location.href=\'https://' + fullDomain + '\'">Lanjutkan ke ' + fullDomain + '</button>';
                           } else {
                               resultElement.innerHTML = 'Subdomain ' + fullDomain + ' tidak ditemukan.';
                           }
