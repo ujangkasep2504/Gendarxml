@@ -31,17 +31,17 @@
             margin-top: 20px;
             font-size: 18px;
         }
+        .link-button {
+            background-color: #008CBA;
+        }
+        .link-button:hover {
+            background-color: #0077B3;
+        }
         .error {
             color: red;
         }
         .success {
             color: green;
-        }
-        .ok-button {
-            background-color: #28a745;
-        }
-        .ok-button:hover {
-            background-color: #218838;
         }
     </style>
 </head>
@@ -69,13 +69,12 @@
             var resultElement = document.getElementById('result');
             resultElement.innerHTML = 'Memeriksa...';
 
-            // Mengirim request ke Cloudflare Worker untuk memeriksa subdomain
-            fetch('/check-subdomain?subdomain=' + subdomain)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.exists) {
+            // Menggunakan fetch untuk mencoba request ke subdomain
+            fetch('https://' + fullDomain, { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
                         resultElement.innerHTML = '<span class="success">Subdomain ' + fullDomain + ' ditemukan dan aktif! </span>';
-                        resultElement.innerHTML += '<br><button class="ok-button" onclick="window.location.href=\'https://' + fullDomain + '\'">OK, Lanjutkan ke ' + fullDomain + '</button>';
+                        resultElement.innerHTML += '<br><button class="link-button" onclick="window.location.href=\'https://' + fullDomain + '\'">Lanjutkan ke ' + fullDomain + '</button>';
                     } else {
                         resultElement.innerHTML = '<span class="error">Subdomain ' + fullDomain + ' tidak ditemukan atau tidak aktif.</span>';
                     }
