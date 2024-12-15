@@ -17,7 +17,7 @@ async function handleRequest(request) {
                   padding: 20px;
                   background-color: #f4f4f4;
               }
-              input[type="text"] {
+              input[type="text"], select {
                   padding: 10px;
                   margin: 10px 0;
                   width: 300px;
@@ -57,6 +57,12 @@ async function handleRequest(request) {
           <p>Masukkan nama subdomain yang ingin Anda gabungkan:</p>
 
           <input type="text" id="subdomain" placeholder="Masukkan subdomain (contoh: gendar)">
+          <p>Pilih domain:</p>
+          <select id="domain-selector">
+              <option value="ari-andika.site">ari-andika.site</option>
+              <option value="ari-andikha.web.id">ari-andikha.web.id</option>
+              <option value="gendarxml.web.id">gendarxml.web.id</option>
+          </select>
           <button onclick="generateUrl()">Gabungkan URL</button>
 
           <div id="result"></div>
@@ -64,8 +70,8 @@ async function handleRequest(request) {
           <script>
               function generateUrl() {
                   var subdomain = document.getElementById('subdomain').value;
-                  var domain = 'ari-andika.site';  // Ganti dengan domain Anda
-                  var fullDomain = subdomain + '.' + domain;
+                  var selectedDomain = document.getElementById('domain-selector').value;
+                  var fullDomain = subdomain + '.' + selectedDomain;
                   var resultElement = document.getElementById('result');
 
                   // Membuat URL lengkap dengan https://
@@ -81,17 +87,17 @@ async function handleRequest(request) {
                   resultElement.innerHTML += '<br><button class="copy-button" onclick="copyUrl()">Salin URL</button>';
               }
 
-              // Fungsi untuk menyalin URL
-              function copyUrl() {
-                  var copyText = document.getElementById("copy-url");
-                  copyText.select();
-                  copyText.setSelectionRange(0, 99999); // Untuk perangkat mobile
+              // Fungsi untuk menyalin URL menggunakan Clipboard API
+              async function copyUrl() {
+                  try {
+                      var copyText = document.getElementById("copy-url");
+                      await navigator.clipboard.writeText(copyText.value);
 
-                  // Salin ke clipboard
-                  document.execCommand("copy");
-
-                  // Feedback ke user
-                  alert("URL disalin: " + copyText.value);
+                      // Feedback ke user
+                      alert("URL disalin: " + copyText.value);
+                  } catch (err) {
+                      alert("Terjadi kesalahan saat menyalin URL.");
+                  }
               }
           </script>
 
