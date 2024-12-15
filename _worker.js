@@ -66,7 +66,8 @@ async function handleRequest(request) {
                           if (response.ok) {
                               resultElement.innerHTML = 'https://Subdomain ' + fullDomain + ' ditemukan dan aktif!';
                           } else {
-                              resultElement.innerHTML =<button onclick=" 'https://Subdomain ' + fullDomain + ' tidak ditemukan.';
+                              resultElement.innerHTML = 'https://Subdomain ' + fullDomain + ' SILAHKAN DI COPY ';
+                              <button onclick="resultElement.innerHTML()">Cek Subdomain</button>
                           }
                       })
                       .catch(error => {
