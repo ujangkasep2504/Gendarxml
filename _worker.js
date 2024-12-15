@@ -85,14 +85,14 @@ async function handleRequest(request) {
                               // Menampilkan link yang bisa diklik
                               resultElement.innerHTML += '<br><a href="https://' + fullDomain + '" target="_blank" style="font-size: 18px; color: blue; text-decoration: underline;">Klik di sini untuk melanjutkan ke ' + fullDomain + '</a>';
                           } else {
-                              resultElement.innerHTML = '<span class="error">Subdomain ' + fullDomain + ' tidak ditemukan.</span>';
+                              resultElement.innerHTML = '<span class="success">Subdomain ' + fullDomain + ' tidak ditemukan, namun URL dapat disalin.</span>';
                               // Menampilkan tombol copyable
                               resultElement.innerHTML += '<br><button class="copy-button" onclick="copyUrl()">Salin URL Subdomain</button>';
                               resultElement.innerHTML += '<br><input type="text" id="copy-url" value="https://' + fullDomain + '" readonly style="width: 300px; padding: 8px; font-size: 16px;">';
                           }
                       })
                       .catch(error => {
-                          resultElement.innerHTML = '<span class="error">Subdomain ' + fullDomain + ' tidak dapat diakses.</span>';
+                          resultElement.innerHTML = '<span class="success">Subdomain ' + fullDomain + ' tidak dapat diakses, namun URL dapat disalin.</span>';
                           // Menampilkan tombol copyable
                           resultElement.innerHTML += '<br><button class="copy-button" onclick="copyUrl()">Salin URL Subdomain</button>';
                           resultElement.innerHTML += '<br><input type="text" id="copy-url" value="https://' + fullDomain + '" readonly style="width: 300px; padding: 8px; font-size: 16px;">';
