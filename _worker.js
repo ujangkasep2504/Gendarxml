@@ -150,3 +150,6 @@ async function handleRequest(request) {
 
   return new Response('Method Not Allowed', { status: 405 })
 }
+
+
+Ganti domain ari-andika.site ke ari-andika2.site
