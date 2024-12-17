@@ -134,7 +134,7 @@ export default {
 
             const result = await response.json();
             if (response.status === 200) {
-                // Pastikan string template dalam backtick sudah benar
+                // Perbaiki penulisan HTML template literal di sini
                 message.innerHTML = `Subdomain berhasil dibuat! Klik <a href="${result.url}" target="_blank">${result.url}</a>`;
                 message.style.color = "green";
             } else {
