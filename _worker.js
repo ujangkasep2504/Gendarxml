@@ -1,5 +1,15 @@
 export default {
   async fetch(request) {
+    // Mendapatkan IP Address dari header Cloudflare
+    const ipAddress = request.headers.get('CF-Connecting-IP') || 'Tidak dapat mendeteksi IP';
+
+    // Mengambil data geolokasi IP untuk menampilkan negara
+    const geoData = await fetch(`https://ipinfo.io/${ipAddress}/json`);
+    const geoJson = await geoData.json();
+    const country = geoJson.country || 'Negara tidak diketahui';
+    const city = geoJson.city || 'Kota tidak diketahui';
+
+    // Menambahkan elemen untuk menampilkan IP Address dan Kecepatan Jaringan
     return new Response(
       `<!DOCTYPE html>
 <html lang="en">
@@ -80,6 +90,29 @@ export default {
         #message.red {
             color: #ff6b6b;
         }
+
+        #network-info {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .info {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #ffd700;
+        }
+
+        .speed {
+            font-size: 16px;
+            color: #ff4500;
+        }
+
+        .flag {
+            width: 25px;
+            height: 15px;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
@@ -98,6 +131,13 @@ export default {
         <button onclick="openUrl()">Buka URL</button>
 
         <div id="message"></div>
+
+        <!-- Informasi IP dan Kecepatan Jaringan -->
+        <div id="network-info">
+            <p>IP Address Anda: <span id="ipAddress">${ipAddress}</span></p>
+            <p class="info">Lokasi Anda: ${city}, ${country} <img src="https://cdn.jsdelivr.net/npm/country-flag-icons@1.0.0/flags/24/gb.png" alt="Flag" class="flag"/></p>
+            <p class="speed" id="networkSpeed">Kecepatan Jaringan: Menghitung...</p>
+        </div>
     </div>
 
     <script>
@@ -117,6 +157,26 @@ export default {
             generatedUrl = \`https://\${subdomain}.\${domain}\`;
             window.location.href = generatedUrl;  // Meneruskan langsung ke URL yang digabungkan
         }
+
+        // Fungsi untuk mengukur kecepatan jaringan (menggunakan API Browser)
+        async function getNetworkSpeed() {
+            const networkSpeedElement = document.getElementById('networkSpeed');
+            try {
+                const startTime = performance.now();
+                const image = new Image();
+                image.src = 'https://www.gstatic.com/webp/gallery/2.jpg';  // Menggunakan gambar sebagai sumber untuk pengukuran
+                await image.decode();
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+                const speed = (image.width * image.height) / (duration * 1000); // Kecepatan dalam KB/ms
+                networkSpeedElement.innerHTML = 'Kecepatan Jaringan: ' + speed.toFixed(2) + ' KB/ms';
+            } catch (error) {
+                networkSpeedElement.innerHTML = 'Tidak dapat mengukur kecepatan';
+            }
+        }
+
+        // Memanggil fungsi getNetworkSpeed saat halaman dimuat
+        getNetworkSpeed();
     </script>
 </body>
 </html>`,
