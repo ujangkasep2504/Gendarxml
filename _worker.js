@@ -1,6 +1,5 @@
 export default {
   async fetch(request) {
-    // Mendapatkan IP Address dari header Cloudflare
     const ipAddress = request.headers.get('CF-Connecting-IP') || 'Tidak dapat mendeteksi IP';
 
     // Mengambil informasi geolokasi berdasarkan IP
@@ -176,12 +175,20 @@ export default {
         async function getGeolocation(ip) {
             try {
                 const response = await fetch(`https://ipapi.co/${ip}/json/`);
-                const data = await response.json();
-                return {
-                    city: data.city || 'Tidak tersedia',
-                    country: data.country_name || 'Tidak tersedia',
-                    country_code: data.country_code || 'ID'
-                };
+                if (response.ok) {
+                    const data = await response.json();
+                    return {
+                        city: data.city || 'Tidak tersedia',
+                        country: data.country_name || 'Tidak tersedia',
+                        country_code: data.country_code || 'ID'
+                    };
+                } else {
+                    return {
+                        city: 'Tidak dapat mendeteksi kota',
+                        country: 'Tidak dapat mendeteksi negara',
+                        country_code: 'ID'
+                    };
+                }
             } catch (error) {
                 return {
                     city: 'Tidak dapat mendeteksi kota',
