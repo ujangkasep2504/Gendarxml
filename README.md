@@ -1,8 +1,14 @@
-# Cloudflare Worker Deployment
+# Deploy Cloudflare Worker secara Otomatis
 
-### Langkah-langkah Deploy Worker ke Cloudflare
+Ikuti langkah-langkah di bawah ini untuk mengedit dan mendeploy **Cloudflare Worker** Anda secara otomatis. 
 
-1. **Ubah File `wrangler.toml`**  
-   Edit file [wrangler.toml](https://github.com/Gendarxml/Gendarxml/edit/main/wrangler.toml) dan sesuaikan nama sesuai kebutuhan Anda. Contoh:  
-   ```toml
-   name = "gendarxmlb" # todo
+### Langkah-langkah Deploy
+
+---
+
+### 1. **Ubah File `wrangler.toml`**
+
+- Masuk ke [**wrangler.toml**](https://github.com/Gendarxml/Gendarxml/edit/main/wrangler.toml) dan ubah nilai `name`.  
+  Contoh perubahan:  
+  ```toml
+  name = "gendarxmlb" # Sesuaikan nama dengan kebutuhan Anda
