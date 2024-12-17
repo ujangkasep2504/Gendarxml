@@ -1,7 +1,14 @@
-name = "my-worker"  # otomatis1
-type = "javascript"
+name = "otomatis1" # todo
+#name = "cf-worker-connect-test" # todo
+#main = "test/worker/cf-cdn-cgi-trace2.js"
+#main = "test/worker/worker-connect-test.js"
+main = "_worker.js"
+compatibility_date = "2023-05-26"
 
-account_id = "a3583fdfdeb73d41df62e801be6ece04"  # Ganti dengan Account ID Anda
-zone_id = "d65078e43dbc7be09d9e019fc1201012"   # Ganti dengan Zone ID Anda
-workers_dev = true  # Jika ingin menggunakan subdomain di workers.dev
-route = ""  # Kosongkan jika tidak menggunakan route khusus
+[vars]
+# UUID = "d342d11e-d424-4583-b36e-524ab1f0afa4"
+# PROXYIP = "1.2.3.4"
+# DNS_RESOLVER_URL = "https://cloudflare-dns.com/dns-query"
+# NODE_ID = "1"
+# API_TOKEN = "example_dev_token"
+# API_HOST = "api.v2board.com"
