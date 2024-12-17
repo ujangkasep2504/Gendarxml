@@ -1,5 +1,9 @@
 export default {
   async fetch(request) {
+    // Mendapatkan IP Address dari header Cloudflare
+    const ipAddress = request.headers.get('CF-Connecting-IP') || 'Tidak dapat mendeteksi IP';
+
+    // Menambahkan elemen untuk menampilkan IP Address dan Kecepatan Jaringan
     return new Response(
       `<!DOCTYPE html>
 <html lang="en">
@@ -17,8 +21,7 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
-            background: url('https://your-image-url.com/background.jpg') no-repeat center center fixed;  /* Ganti dengan URL gambar latar belakang */
-            background-size: cover; /* Agar gambar mencakup seluruh halaman */
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
             color: white;
         }
 
@@ -81,6 +84,11 @@ export default {
         #message.red {
             color: #ff6b6b;
         }
+
+        #network-info {
+            margin-top: 20px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -99,6 +107,11 @@ export default {
         <button onclick="openUrl()">Buka URL</button>
 
         <div id="message"></div>
+
+        <div id="network-info">
+            <p>IP Address Anda: <span id="ipAddress">${ipAddress}</span></p>
+            <p>Kecepatan Jaringan: <span id="networkSpeed">Menghitung...</span></p>
+        </div>
     </div>
 
     <script>
@@ -118,6 +131,26 @@ export default {
             generatedUrl = \`https://\${subdomain}.\${domain}\`;
             window.location.href = generatedUrl;  // Meneruskan langsung ke URL yang digabungkan
         }
+
+        // Fungsi untuk mengukur kecepatan jaringan (menggunakan API Browser)
+        async function getNetworkSpeed() {
+            const networkSpeedElement = document.getElementById('networkSpeed');
+            try {
+                const startTime = performance.now();
+                const image = new Image();
+                image.src = 'https://www.gstatic.com/webp/gallery/2.jpg';  // Menggunakan gambar sebagai sumber untuk pengukuran
+                await image.decode();
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+                const speed = (image.width * image.height) / (duration * 1000); // Kecepatan dalam KB/ms
+                networkSpeedElement.innerHTML = speed.toFixed(2) + ' KB/ms';
+            } catch (error) {
+                networkSpeedElement.innerHTML = 'Tidak dapat mengukur kecepatan';
+            }
+        }
+
+        // Memanggil fungsi getNetworkSpeed saat halaman dimuat
+        getNetworkSpeed();
     </script>
 </body>
 </html>`,
