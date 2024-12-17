@@ -1,30 +1,13 @@
-           CUMA UBAH FILE 
-           wrangler.toml
-    contoh: name = "gendarxmlb" # todo
-    Selanjutnya Klik Deploy Di bawah
-    
-Edit Wrangler Di bawah
+           # Cloudflare Worker Deployment
 
-https://github.com/Gendarxml/Gendarxml/edit/main/wrangler.toml
+### Langkah-langkah Deploy Worker ke Cloudflare
 
+Ikuti langkah-langkah di bawah ini untuk mengedit dan mendeploy **Cloudflare Worker** ke Cloudflare secara otomatis.
 
-edit worker.js
+## 1. Edit `wrangler.toml`
 
-https://github.com/Gendarxml/Gendarxml/edit/main/_worker.js
-
-
-cek domain
-
-https://cek-domain.ari-andika.site
-
-
-
-
-KLIK DEPLOY
-
-   [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Gendarxml/Gendarxml)
-
-Jika sudah Maka masukan ID Cloudflare Anda
-Dan juga Token Cloudflare anda
-
-
+- Masuk ke [wrangler.toml](https://github.com/Gendarxml/Gendarxml/edit/main/wrangler.toml) di repositori Anda.
+- Ubah nilai `name` sesuai kebutuhan Anda. Sebagai contoh, jika Anda ingin mengubah nama ke `gendarxmlb`, Anda dapat mengganti seperti berikut:
+  
+  ```toml
+  name = "gendarxmlb" # todo
