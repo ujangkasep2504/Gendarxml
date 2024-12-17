@@ -3,7 +3,18 @@ export default {
     // Mendapatkan IP Address dari header Cloudflare
     const ipAddress = request.headers.get('CF-Connecting-IP') || 'Tidak dapat mendeteksi IP';
 
-    // Menambahkan elemen untuk menampilkan IP Address dan Kecepatan Jaringan
+    // URL API untuk mendapatkan informasi lokasi berdasarkan IP
+    const ipApiUrl = `https://ipapi.co/${ipAddress}/json/`;  // Ganti dengan API yang sesuai, seperti ipinfo.io
+
+    // Mendapatkan data lokasi berdasarkan IP
+    const ipInfoResponse = await fetch(ipApiUrl);
+    const ipInfo = await ipInfoResponse.json();
+
+    const country = ipInfo.country_name || 'Tidak diketahui';
+    const countryCode = ipInfo.country_code || '';
+    const countryFlag = `https://countryflagsapi.com/png/${countryCode.toLowerCase()}`;
+
+    // Menambahkan elemen untuk menampilkan IP Address, Negara, dan Bendera
     return new Response(
       `<!DOCTYPE html>
 <html lang="en">
@@ -89,6 +100,20 @@ export default {
             margin-top: 20px;
             font-size: 16px;
         }
+
+        .flag {
+            width: 40px;
+            height: auto;
+            margin-left: 10px;
+        }
+
+        .info-box {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -109,7 +134,11 @@ export default {
         <div id="message"></div>
 
         <div id="network-info">
-            <p>IP Address Anda: <span id="ipAddress">${ipAddress}</span></p>
+            <div class="info-box">
+                <p><strong>IP Address:</strong> <span id="ipAddress">${ipAddress}</span></p>
+                <p><strong>Negara:</strong> <span id="country">${country}</span></p>
+                <img id="countryFlag" class="flag" src="${countryFlag}" alt="Flag">
+            </div>
             <p>Kecepatan Jaringan: <span id="networkSpeed">Menghitung...</span></p>
         </div>
     </div>
