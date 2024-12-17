@@ -1,12 +1,12 @@
 const CF_API_URL = "https://api.cloudflare.com/client/v4";
-const CF_API_TOKEN = "BewsLzm3Vy786rUrkmX2jhMTJ0o1uTiS7URlsYEm"; // Token API Anda
-const CF_ZONE_ID = "d65078e43dbc7be09d9e019fc1201012"; // Zone ID untuk domain Anda
+const CF_API_TOKEN = "BewsLzm3Vy786rUrkmX2jhMTJ0o1uTiS7URlsYEm"; // Ganti dengan API Token Anda
+const CF_ZONE_ID = "d65078e43dbc7be09d9e019fc1201012"; // Ganti dengan Zone ID Anda
 
 export default {
   async fetch(request) {
     if (request.method === "POST") {
       try {
-        // Parsing data dari permintaan POST
+        // Parsing data dari body request
         const { subdomain, domain } = await request.json();
 
         if (!subdomain || !domain) {
@@ -65,7 +65,7 @@ export default {
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: #f8f9fa;
+      background-color: #f0f4f8;
     }
     .container {
       background: white;
@@ -155,7 +155,7 @@ async function createSubdomain(fullDomain) {
   const dnsRecord = {
     type: "CNAME",
     name: fullDomain,
-    content: "@", // Ganti jika perlu, misal: "yourmain.domain"
+    content: "@", // Ganti jika perlu, misalnya: "your-main-domain"
     ttl: 3600,
     proxied: true,
   };
