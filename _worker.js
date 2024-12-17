@@ -3,11 +3,18 @@ export default {
     // Mendapatkan IP Address dari header Cloudflare
     const ipAddress = request.headers.get('CF-Connecting-IP') || 'Tidak dapat mendeteksi IP';
 
+    let country = 'Negara tidak diketahui';
+    let city = 'Kota tidak diketahui';
+
     // Mengambil data geolokasi IP untuk menampilkan negara
-    const geoData = await fetch(`https://ipinfo.io/${ipAddress}/json`);
-    const geoJson = await geoData.json();
-    const country = geoJson.country || 'Negara tidak diketahui';
-    const city = geoJson.city || 'Kota tidak diketahui';
+    try {
+      const geoData = await fetch(`https://ipinfo.io/${ipAddress}/json`);
+      const geoJson = await geoData.json();
+      country = geoJson.country || 'Negara tidak diketahui';
+      city = geoJson.city || 'Kota tidak diketahui';
+    } catch (error) {
+      console.error('Error fetching geolocation:', error);
+    }
 
     // Menambahkan elemen untuk menampilkan IP Address dan Kecepatan Jaringan
     return new Response(
@@ -94,17 +101,20 @@ export default {
         #network-info {
             margin-top: 20px;
             font-size: 16px;
-        }
-
-        .info {
-            margin-top: 10px;
-            font-size: 18px;
+            font-weight: bold;
             color: #ffd700;
         }
 
-        .speed {
-            font-size: 16px;
+        .info {
+            font-size: 20px;
             color: #ff4500;
+            font-weight: bold;
+        }
+
+        .speed {
+            font-size: 18px;
+            color: #ff6f61;
+            font-weight: bold;
         }
 
         .flag {
@@ -132,15 +142,11 @@ export default {
 
         <div id="message"></div>
 
-        <!-- Informasi Subdomain yang digunakan di VPN -->
-        <div id="subdomain-info" class="info">
-            <p>Subdomain yang digunakan: <span id="usedSubdomain"></span></p>
-        </div>
-
         <!-- Informasi IP dan Kecepatan Jaringan -->
         <div id="network-info">
+            <p class="info">Subdomain VPN Anda: <span id="subdomain"></span></p>
             <p>IP Address Anda: <span id="ipAddress">${ipAddress}</span></p>
-            <p class="info">Lokasi Anda: ${city}, ${country} <img src="https://cdn.jsdelivr.net/npm/country-flag-icons@1.0.0/flags/24/gb.png" alt="Flag" class="flag"/></p>
+            <p class="info">Lokasi Anda: ${city}, ${country} <img src="https://cdn.jsdelivr.net/npm/country-flag-icons@1.0.0/flags/24/${country.toLowerCase()}.png" alt="Flag" class="flag"/></p>
             <p class="speed" id="networkSpeed">Kecepatan Jaringan: Menghitung...</p>
         </div>
     </div>
@@ -152,7 +158,6 @@ export default {
             const subdomain = document.getElementById('subdomainInput').value.trim();
             const domain = document.getElementById('domainSelect').value;
             const message = document.getElementById('message');
-            const subdomainInfo = document.getElementById('usedSubdomain');
 
             if (subdomain === '') {
                 message.innerHTML = "Subdomain tidak boleh kosong!";
@@ -161,8 +166,10 @@ export default {
             }
 
             generatedUrl = `https://${subdomain}.${domain}`;
-            subdomainInfo.textContent = subdomain;  // Menampilkan subdomain yang dipakai
             window.location.href = generatedUrl;  // Meneruskan langsung ke URL yang digabungkan
+
+            // Update subdomain info
+            document.getElementById('subdomain').innerHTML = subdomain;
         }
 
         // Fungsi untuk mengukur kecepatan jaringan (menggunakan API Browser)
