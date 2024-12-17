@@ -95,7 +95,6 @@ export default {
             <option value="gendarxml.web.id">gendarxml.web.id</option>
         </select>
 
-        <button onclick="generateUrl()">Salin URL</button>
         <button onclick="openUrl()">Buka URL</button>
 
         <div id="message"></div>
@@ -104,7 +103,7 @@ export default {
     <script>
         let generatedUrl = "";
 
-        function generateUrl() {
+        function openUrl() {
             const subdomain = document.getElementById('subdomainInput').value.trim();
             const domain = document.getElementById('domainSelect').value;
             const message = document.getElementById('message');
@@ -115,27 +114,8 @@ export default {
                 return;
             }
 
-            generatedUrl = \`https://\${subdomain}.\${domain}\`;
-
-            navigator.clipboard.writeText(generatedUrl)
-                .then(() => {
-                    message.innerHTML = \`URL "\${generatedUrl}" berhasil disalin!\`;
-                    message.className = 'green';
-                })
-                .catch(() => {
-                    message.innerHTML = "Gagal menyalin URL!";
-                    message.className = 'red';
-                });
-        }
-
-        function openUrl() {
-            if (generatedUrl) {
-                window.open(generatedUrl, "_blank");
-            } else {
-                const message = document.getElementById('message');
-                message.innerHTML = "Harap buat URL terlebih dahulu!";
-                message.className = 'red';
-            }
+            generatedUrl = `https://${subdomain}.${domain}`;
+            window.location.href = generatedUrl;  // Meneruskan langsung ke URL yang digabungkan
         }
     </script>
 </body>
