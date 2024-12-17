@@ -4,10 +4,12 @@ const CF_ZONE_ID = "d65078e43dbc7be09d9e019fc1201012"; // Ganti dengan Zone ID A
 
 export default {
   async fetch(request) {
+    // Cek apakah request menggunakan method POST
     if (request.method === "POST") {
       const requestBody = await request.json();
       const { subdomain, domain } = requestBody;
 
+      // Validasi input
       if (!subdomain || !domain) {
         return new Response(
           JSON.stringify({ error: "Subdomain atau domain tidak valid!" }),
@@ -41,6 +43,7 @@ export default {
         );
       }
     } else {
+      // Response HTML untuk form input subdomain
       return new Response(
         `<!DOCTYPE html>
 <html lang="en">
@@ -105,7 +108,7 @@ export default {
         
         <select id="domainSelect">
             <option value="ari-andika2.site">ari-andika2.site</option>
-            <option value="ari-andikha.web.id">ari-andika.web.id</option>
+            <option value="ari-andikha.web.id">ari-andikha.web.id</option>
             <option value="gendarxml.web.id">gendarxml.web.id</option>
         </select>
 
@@ -126,6 +129,7 @@ export default {
                 return;
             }
 
+            // Kirim request ke worker untuk membuat subdomain
             const response = await fetch("/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -134,18 +138,17 @@ export default {
 
             const result = await response.json();
             if (response.status === 200) {
-                // Perbaiki penulisan HTML template literal di sini
-                message.innerHTML = `Subdomain berhasil dibuat! Klik <a href="${result.url}" target="_blank">${result.url}</a>`;
+                message.innerHTML = 'Subdomain berhasil dibuat! Klik <a href="' + result.url + '" target="_blank">' + result.url + '</a>';
                 message.style.color = "green";
             } else {
-                message.innerHTML = `Error: ${result.error}`;
+                message.innerHTML = "Error: " + result.error;
                 message.style.color = "red";
             }
         }
     </script>
 </body>
 </html>`,
-      { headers: { "Content-Type": "text/html;charset=UTF-8" } });
+        { headers: { "Content-Type": "text/html;charset=UTF-8" } });
   },
 };
 
