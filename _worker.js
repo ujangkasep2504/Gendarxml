@@ -132,6 +132,11 @@ export default {
 
         <div id="message"></div>
 
+        <!-- Informasi Subdomain yang digunakan di VPN -->
+        <div id="subdomain-info" class="info">
+            <p>Subdomain yang digunakan: <span id="usedSubdomain"></span></p>
+        </div>
+
         <!-- Informasi IP dan Kecepatan Jaringan -->
         <div id="network-info">
             <p>IP Address Anda: <span id="ipAddress">${ipAddress}</span></p>
@@ -147,6 +152,7 @@ export default {
             const subdomain = document.getElementById('subdomainInput').value.trim();
             const domain = document.getElementById('domainSelect').value;
             const message = document.getElementById('message');
+            const subdomainInfo = document.getElementById('usedSubdomain');
 
             if (subdomain === '') {
                 message.innerHTML = "Subdomain tidak boleh kosong!";
@@ -154,7 +160,8 @@ export default {
                 return;
             }
 
-            generatedUrl = \`https://\${subdomain}.\${domain}\`;
+            generatedUrl = `https://${subdomain}.${domain}`;
+            subdomainInfo.textContent = subdomain;  // Menampilkan subdomain yang dipakai
             window.location.href = generatedUrl;  // Meneruskan langsung ke URL yang digabungkan
         }
 
