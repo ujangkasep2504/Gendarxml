@@ -1,11 +1,12 @@
 const CF_API_URL = "https://api.cloudflare.com/client/v4";
-const CF_API_TOKEN = "SGPJHkPrC_EaaFQDCKuFPakgz0-qtwWCjQIAFOW2"; // Token API Anda
-const CF_ZONE_ID = "d65078e43dbc7be09d9e019fc1201012"; // Zone ID Anda
+const CF_API_TOKEN = "BewsLzm3Vy786rUrkmX2jhMTJ0o1uTiS7URlsYEm"; // Token API Anda
+const CF_ZONE_ID = "d65078e43dbc7be09d9e019fc1201012"; // Zone ID untuk domain Anda
 
 export default {
   async fetch(request) {
     if (request.method === "POST") {
       try {
+        // Parsing data dari permintaan POST
         const { subdomain, domain } = await request.json();
 
         if (!subdomain || !domain) {
@@ -15,10 +16,10 @@ export default {
           );
         }
 
-        // Nama lengkap subdomain
+        // Format nama subdomain lengkap
         const fullDomain = `${subdomain}.${domain}`;
 
-        // Proses pembuatan CNAME di Cloudflare
+        // Proses pembuatan DNS Record di Cloudflare
         const response = await createSubdomain(fullDomain);
         if (response.success) {
           return new Response(
@@ -33,7 +34,7 @@ export default {
           return new Response(
             JSON.stringify({
               success: false,
-              error: "Gagal membuat subdomain di Cloudflare.",
+              error: response.errors?.[0]?.message || "Gagal membuat subdomain.",
             }),
             { status: 500, headers: { "Content-Type": "application/json" } }
           );
@@ -46,7 +47,7 @@ export default {
       }
     }
 
-    // Tampilan Form HTML
+    // Halaman Form HTML
     return new Response(
       `<!DOCTYPE html>
 <html lang="en">
@@ -58,8 +59,8 @@ export default {
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      margin: 0;
       padding: 0;
+      margin: 0;
       height: 100vh;
       display: flex;
       justify-content: center;
@@ -104,11 +105,11 @@ export default {
       <option value="ari-andikha.web.id">ari-andikha.web.id</option>
       <option value="gendarxml.web.id">gendarxml.web.id</option>
     </select>
-    <button onclick="createSubdomain()">Buat Subdomain</button>
+    <button onclick="createDomain()">Buat Subdomain</button>
     <div id="message"></div>
   </div>
   <script>
-    async function createSubdomain() {
+    async function createDomain() {
       const subdomain = document.getElementById("subdomainInput").value.trim();
       const domain = document.getElementById("domainSelect").value;
       const message = document.getElementById("message");
@@ -119,45 +120,54 @@ export default {
         return;
       }
 
-      const response = await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subdomain, domain }),
-      });
+      try {
+        const response = await fetch("/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ subdomain, domain }),
+        });
 
-      const result = await response.json();
-      if (result.success) {
-        message.innerHTML = \`Subdomain berhasil dibuat: <a href="\${result.url}" target="_blank">\${result.url}</a>\`;
-        message.style.color = "green";
-      } else {
-        message.textContent = result.error || "Gagal membuat subdomain.";
+        const result = await response.json();
+        if (result.success) {
+          message.innerHTML = `Subdomain berhasil dibuat! Klik <a href="${result.url}" target="_blank">${result.url}</a>`;
+          message.style.color = "green";
+        } else {
+          message.textContent = `Error: ${result.error}`;
+          message.style.color = "red";
+        }
+      } catch (err) {
+        message.textContent = `Terjadi kesalahan: ${err.message}`;
         message.style.color = "red";
       }
     }
   </script>
 </body>
 </html>`,
-      { headers: { "Content-Type": "text/html;charset=UTF-8" } }
+      { headers: { "Content-Type": "text/html" } }
     );
   },
 };
 
-// Fungsi untuk membuat subdomain menggunakan Cloudflare API
+// Fungsi untuk membuat subdomain
 async function createSubdomain(fullDomain) {
+  const dnsRecord = {
+    type: "CNAME",
+    name: fullDomain,
+    content: "@", // Ganti jika perlu, misal: "yourmain.domain"
+    ttl: 3600,
+    proxied: true,
+  };
+
   const response = await fetch(`${CF_API_URL}/zones/${CF_ZONE_ID}/dns_records`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${CF_API_TOKEN}`,
+      "Authorization": `Bearer ${CF_API_TOKEN}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      type: "CNAME",
-      name: fullDomain,
-      content: "@",
-      ttl: 3600,
-      proxied: true,
-    }),
+    body: JSON.stringify(dnsRecord),
   });
 
-  return await response.json();
+  return response.json();
 }
