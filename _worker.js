@@ -4,48 +4,48 @@ const CF_ZONE_ID = "d65078e43dbc7be09d9e019fc1201012"; // Ganti dengan Zone ID A
 
 export default {
   async fetch(request) {
-    // Cek apakah request menggunakan method POST
     if (request.method === "POST") {
-      const requestBody = await request.json();
-      const { subdomain, domain } = requestBody;
-
-      // Validasi input
-      if (!subdomain || !domain) {
-        return new Response(
-          JSON.stringify({ error: "Subdomain atau domain tidak valid!" }),
-          { status: 400 }
-        );
-      }
-
-      const recordName = `${subdomain}.${domain}`;
-
       try {
-        // Membuat DNS CNAME record untuk subdomain yang diminta
-        const dnsResponse = await createDnsRecord(recordName, domain);
+        const { subdomain, domain } = await request.json();
+
+        // Validasi input
+        if (!subdomain || !domain) {
+          return new Response(
+            JSON.stringify({ error: "Subdomain atau domain tidak valid!" }),
+            { status: 400, headers: { "Content-Type": "application/json" } }
+          );
+        }
+
+        const recordName = `${subdomain}.${domain}`;
+
+        // Buat CNAME record di Cloudflare
+        const dnsResponse = await createDnsRecord(recordName);
+
         if (dnsResponse.success) {
           return new Response(
             JSON.stringify({
               message: `Subdomain ${recordName} berhasil dibuat!`,
               url: `https://${recordName}`,
             }),
-            { status: 200 }
+            { status: 200, headers: { "Content-Type": "application/json" } }
           );
         } else {
           return new Response(
-            JSON.stringify({ error: "Gagal membuat subdomain." }),
-            { status: 500 }
+            JSON.stringify({ error: "Gagal membuat subdomain di Cloudflare." }),
+            { status: 500, headers: { "Content-Type": "application/json" } }
           );
         }
       } catch (error) {
         return new Response(
           JSON.stringify({ error: `Error: ${error.message}` }),
-          { status: 500 }
+          { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
-    } else {
-      // Response HTML untuk form input subdomain
-      return new Response(
-        `<!DOCTYPE html>
+    }
+
+    // Tampilan HTML untuk form input
+    return new Response(
+      `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -129,11 +129,10 @@ export default {
                 return;
             }
 
-            // Kirim request ke worker untuk membuat subdomain
             const response = await fetch("/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ subdomain, domain })
+                body: JSON.stringify({ subdomain, domain }),
             });
 
             const result = await response.json();
@@ -148,22 +147,23 @@ export default {
     </script>
 </body>
 </html>`,
-        { headers: { "Content-Type": "text/html;charset=UTF-8" } });
+      { headers: { "Content-Type": "text/html;charset=UTF-8" } }
+    );
   },
 };
 
 // Fungsi untuk membuat DNS CNAME record
-async function createDnsRecord(recordName, domain) {
+async function createDnsRecord(recordName) {
   const url = `${CF_API_URL}/zones/${CF_ZONE_ID}/dns_records`;
   const headers = {
-    "Authorization": `Bearer ${CF_API_TOKEN}`,
+    Authorization: `Bearer ${CF_API_TOKEN}`,
     "Content-Type": "application/json",
   };
 
   const body = JSON.stringify({
     type: "CNAME",
     name: recordName,
-    content: "@", // Mengarah ke domain utama (root)
+    content: "@",
     ttl: 3600,
     proxied: false,
   });
@@ -175,5 +175,5 @@ async function createDnsRecord(recordName, domain) {
   });
 
   const data = await response.json();
-  return data.success;
+  return data;
 }
