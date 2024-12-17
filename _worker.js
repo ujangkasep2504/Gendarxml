@@ -17,7 +17,7 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #6a11cb, #2575fc); /* Gradasi warna */
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
             color: white;
         }
 
@@ -114,7 +114,7 @@ export default {
                 return;
             }
 
-            generatedUrl = `https://${subdomain}.${domain}`;
+            generatedUrl = \`https://\${subdomain}.\${domain}\`;
             window.location.href = generatedUrl;  // Meneruskan langsung ke URL yang digabungkan
         }
     </script>
