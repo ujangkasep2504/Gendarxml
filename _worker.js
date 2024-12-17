@@ -3,18 +3,10 @@ export default {
     // Mendapatkan IP Address dari header Cloudflare
     const ipAddress = request.headers.get('CF-Connecting-IP') || 'Tidak dapat mendeteksi IP';
 
-    // URL API untuk mendapatkan informasi lokasi berdasarkan IP
-    const ipApiUrl = `https://ipapi.co/${ipAddress}/json/`;  // Ganti dengan API yang sesuai, seperti ipinfo.io
+    // Mengambil informasi geolokasi berdasarkan IP
+    const geoInfo = await getGeolocation(ipAddress);
 
-    // Mendapatkan data lokasi berdasarkan IP
-    const ipInfoResponse = await fetch(ipApiUrl);
-    const ipInfo = await ipInfoResponse.json();
-
-    const country = ipInfo.country_name || 'Tidak diketahui';
-    const countryCode = ipInfo.country_code || '';
-    const countryFlag = `https://countryflagsapi.com/png/${countryCode.toLowerCase()}`;
-
-    // Menambahkan elemen untuk menampilkan IP Address, Negara, dan Bendera
+    // Menambahkan elemen untuk menampilkan IP Address, Kota, dan Kecepatan Jaringan
     return new Response(
       `<!DOCTYPE html>
 <html lang="en">
@@ -101,18 +93,18 @@ export default {
             font-size: 16px;
         }
 
-        .flag {
-            width: 40px;
-            height: auto;
-            margin-left: 10px;
-        }
-
         .info-box {
             background-color: rgba(0, 0, 0, 0.3);
             padding: 10px;
             border-radius: 8px;
             margin-top: 10px;
             display: inline-block;
+        }
+
+        .flag {
+            width: 40px;
+            height: auto;
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -135,11 +127,10 @@ export default {
 
         <div id="network-info">
             <div class="info-box">
-                <p><strong>IP Address:</strong> <span id="ipAddress">${ipAddress}</span></p>
-                <p><strong>Negara:</strong> <span id="country">${country}</span></p>
-                <img id="countryFlag" class="flag" src="${countryFlag}" alt="Flag">
+                <p><strong>IP Address Anda:</strong> <span id="ipAddress">${ipAddress}</span></p>
+                <p><strong>Kota:</strong> <span id="city">${geoInfo.city || 'Tidak dapat mendeteksi kota'}</span></p>
+                <p><strong>Kecepatan Jaringan:</strong> <span id="networkSpeed">Menghitung...</span></p>
             </div>
-            <p>Kecepatan Jaringan: <span id="networkSpeed">Menghitung...</span></p>
         </div>
     </div>
 
@@ -180,6 +171,25 @@ export default {
 
         // Memanggil fungsi getNetworkSpeed saat halaman dimuat
         getNetworkSpeed();
+
+        // Fungsi untuk mendapatkan informasi geolokasi berdasarkan IP
+        async function getGeolocation(ip) {
+            try {
+                const response = await fetch(`https://ipapi.co/${ip}/json/`);
+                const data = await response.json();
+                return {
+                    city: data.city || 'Tidak tersedia',
+                    country: data.country_name || 'Tidak tersedia',
+                    country_code: data.country_code || 'ID'
+                };
+            } catch (error) {
+                return {
+                    city: 'Tidak dapat mendeteksi kota',
+                    country: 'Tidak dapat mendeteksi negara',
+                    country_code: 'ID'
+                };
+            }
+        }
     </script>
 </body>
 </html>`,
