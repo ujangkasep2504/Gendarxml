@@ -6,7 +6,7 @@ export default {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generate & Open URL</title>
+    <title>Generate HTTPS URL</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -25,7 +25,7 @@ export default {
     </style>
 </head>
 <body>
-    <h1>Generate URL</h1>
+    <h1>Generate HTTPS URL</h1>
     <p>Masukkan subdomain dan pilih domain:</p>
 
     <input type="text" id="subdomainInput" placeholder="Masukkan subdomain">
@@ -52,7 +52,7 @@ export default {
                 return;
             }
 
-            generatedUrl = \`http://\${subdomain}.\${domain}\`;
+            generatedUrl = \`https://\${subdomain}.\${domain}\`;
 
             navigator.clipboard.writeText(generatedUrl)
                 .then(() => {
