@@ -159,7 +159,7 @@ async function createDnsRecord(recordName, domain) {
   const body = JSON.stringify({
     type: "CNAME",
     name: recordName,
-    content: `@`, // Mengarah ke domain utama (root)
+    content: "@", // Mengarah ke domain utama (root)
     ttl: 3600,
     proxied: false,
   });
