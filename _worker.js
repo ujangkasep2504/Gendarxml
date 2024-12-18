@@ -52,7 +52,7 @@ var worker_default = {
 async function getAllConfigVless(env, hostName, listProxy) {
   const listProxyElements = listProxy
     .map(({ proxyIP, proxyPort, country, isp }, index) => {
-      const vlessTls = `vless://${generateUUIDv4()}@quis.vidio.com:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Fvl%3D${proxyIP}%3D${proxyPort}#${hostname}(${country}) ${isp}`;
+      const vlessTls = `vless://${generateUUIDv4()}@quis.vidio.com:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Fvl%3D${proxyIP}%3D${proxyPort}#${hostName} ${isp}`;
       const vlessNtls = `vless://${generateUUIDv4()}@masukan.bug.ws:80?path=%2Fvl%3D${proxyIP}%3D${proxyPort}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#(${country}) ${isp}`;
       const trojanTls = `trojan://${generatePASSWD()}@masukan.bug.ws:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2Ftr%3D${proxyIP}%3D${proxyPort}#(${country}) ${isp}`;
       const trojanNtls = `trojan://${generatePASSWD()}@masukan.bug.ws:80?path=%2Ftr%3D${proxyIP}%3D${proxyPort}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#(${country}) ${isp}`;
