@@ -3,7 +3,7 @@ import { connect } from "cloudflare:sockets";
 
 var listProxy = [
   { path: "/MALASIA", proxy: "45.195.69.98:30726" },
-  { path: "/INDONESIA", proxy: "172.232.239.151:587" },
+  { path: "/INDONESIA", proxy: "103.133.223.50,2096" },
   { path: "/SINGAPORE", proxy: "143.198.213.197:8443" },
   // tambahkan sendiri
 ];
