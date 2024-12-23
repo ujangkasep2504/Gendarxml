@@ -3,7 +3,7 @@ import { connect } from "cloudflare:sockets";
 let isApiReady = false;
 let proxyIP = "172.232.239.175:587";
 let cachedProxyList = [
-  { path: "/1.249.4.71:50002", proxy: "1.249.4.71:50002" },
+  { path: "/1.249.4.71:50002", proxy: "103.186.1.209:2053" },
   { path: "/INDONESIA", proxy: "103.186.1.209:2053" },
   { path: "/SINGAPORE", proxy: "143.198.213.197:8443" },
   // tambahkan sendiri
