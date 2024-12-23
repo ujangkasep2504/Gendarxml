@@ -1,75 +1,32 @@
 // <!--GAMFC-->version base on commit 841ed4e9ff121dde0ed6a56ae800c2e6c4f66056, time is 2024-04-16 18:02:37 UTC<!--GAMFC-END-->.
 // @ts-ignore
+//ahhhhhhhhh
 import { connect } from 'cloudflare:sockets';
-
-const listProxy = [
-    { path: '/id1', proxy: '194.58.56.169' },
-    { path: '/id2', proxy: '202.10.42.30' },
-    //tambahin sendiri
-];
 let proxyIP;
 export default {
-    async fetch(request, ctx) {
-        try {
-            proxyIP = proxyIP;
-            const url = new URL(request.url);
-            const upgradeHeader = request.headers.get('Upgrade');
-            for (const entry of listProxy) {
-                if (url.pathname.startsWith(entry.path)) {
-                    proxyIP = entry.proxy;
-                    break;
-                }
-            }
-            if (upgradeHeader === 'websocket' && proxyIP) {
-                return await vlessOverWSHandler(request);
-            }
-            const allConfig = await getAllConfigVless(request.headers.get('Host'));
-            return new Response(allConfig, {
-                status: 200,
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-            });
-        } catch (err) {
-            return new Response(err.toString(), { status: 500 });
-        }
-    },
-};
-async function getAllConfigVless(hostName) {
+  async fetch(request, ctx) {
     try {
-        let allConfigs = '';
-        for (const entry of listProxy) {
-            const { path, proxy } = entry;
-            const response = await fetch(`https://ipwhois.app/json/${proxy}`);
-            const data = await response.json();
-            const isp = data.isp;
-            const country = data.country;
-            const country_code = data.country_code;
-            const pathFixed = encodeURIComponent(path);
-            const vlessTls = `vless://bexnxx\u0040${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=${pathFixed}#${isp} (${country_code})`;
-            const vlessNtls = `vless://bexnxx\u0040${hostName}:80?path=${pathFixed}&security=none&encryption=none&host=${hostName}&fp=randomized&type=ws&sni=${hostName}#${isp} (${country_code})`;
-            const vlessTlsFixed = vlessTls.replace(/ /g, '+');
-            const vlessNtlsFixed = vlessNtls.replace(/ /g, '+');
-            allConfigs += 
-`PATH: ${path}
-COUNTRY: ${country}
-ISP: ${isp}
-=====================================
-TLS:
-${vlessTlsFixed}
-=====================================
-NTLS:
-${vlessNtlsFixed}
-=====================================
-`;
-        }
-const configsss =
-`=====================================
-        ALL VLESS ACCOUNT
-=====================================`
-        return `${configsss}\n${allConfigs}`;
-    } catch (error) {
-        return "An error occurred while generating the VLESS configurations.";
+      proxyIP = proxyIP;
+      const upgradeHeader = request.headers.get('Upgrade');
+      const url = new URL(request.url);
+      if (!upgradeHeader || upgradeHeader !== 'websocket') {
+        return fetch(request);
+      } else {
+    	if (url.pathname.includes('/vl=')) {
+		proxyIP = url.pathname.split('=')[1];
+		return await vlessOverWSHandler(request);
+	  } else if (url.pathname.includes('/tr=')) {
+		proxyIP = url.pathname.split('=')[1];
+		return await trojanOverWSHandler(request);
+	  } else {
+	    return await vlessOverWSHandler(request);
+	   }
+	 }
+    } catch (err) {
+      return new Response(`Error: ${err.message}`, { status: 500 });
     }
-}
+  },
+};
 
 async function vlessOverWSHandler(request) {
 	const webSocketPair = new WebSocketPair();
@@ -455,4 +412,274 @@ async function handleUDPOutBound(webSocket, vlessResponseHeader, log) {
 			writer.write(chunk);
 		}
 	};
+}
+
+
+async function trojanOverWSHandler(request) {
+  const webSocketPair = new WebSocketPair();
+  const [client, webSocket] = Object.values(webSocketPair);
+  webSocket.accept();
+  let address = "";
+  let portWithRandomLog = "";
+  const log = (info, event) => {
+    console.log(`[${address}:${portWithRandomLog}] ${info}`, event || "");
+  };
+  const earlyDataHeader = request.headers.get("sec-websocket-protocol") || "";
+  const readableWebSocketStream = makeReadableWebSocketStream2(webSocket, earlyDataHeader, log);
+  let remoteSocketWapper = {
+    value: null,
+  };
+  let udpStreamWrite = null;
+  readableWebSocketStream
+    .pipeTo(
+      new WritableStream({
+        async write(chunk, controller) {
+          if (udpStreamWrite) {
+            return udpStreamWrite(chunk);
+          }
+          if (remoteSocketWapper.value) {
+            const writer = remoteSocketWapper.value.writable.getWriter();
+            await writer.write(chunk);
+            writer.releaseLock();
+            return;
+          }
+          const {
+            hasError,
+            message,
+            portRemote = 443,
+            addressRemote = "",
+            rawClientData,
+          } = await parseTrojanHeader(chunk);
+          address = addressRemote;
+          portWithRandomLog = `${portRemote}--${Math.random()} tcp`;
+          if (hasError) {
+            throw new Error(message);
+            return;
+          }
+          handleTCPOutBound2(remoteSocketWapper, addressRemote, portRemote, rawClientData, webSocket, log);
+        },
+        close() {
+          log(`readableWebSocketStream is closed`);
+        },
+        abort(reason) {
+          log(`readableWebSocketStream is aborted`, JSON.stringify(reason));
+        },
+      })
+    )
+    .catch((err) => {
+      log("readableWebSocketStream pipeTo error", err);
+    });
+  return new Response(null, {
+    status: 101,
+    webSocket: client,
+  });
+}
+
+async function parseTrojanHeader(buffer) {
+  if (buffer.byteLength < 56) {
+    return {
+      hasError: true,
+      message: "invalid data",
+    };
+  }
+  let crLfIndex = 56;
+  if (new Uint8Array(buffer.slice(56, 57))[0] !== 0x0d || new Uint8Array(buffer.slice(57, 58))[0] !== 0x0a) {
+    return {
+      hasError: true,
+      message: "invalid header format (missing CR LF)",
+    };
+  }
+
+  const socks5DataBuffer = buffer.slice(crLfIndex + 2);
+  if (socks5DataBuffer.byteLength < 6) {
+    return {
+      hasError: true,
+      message: "invalid SOCKS5 request data",
+    };
+  }
+
+  const view = new DataView(socks5DataBuffer);
+  const cmd = view.getUint8(0);
+  if (cmd !== 1) {
+    return {
+      hasError: true,
+      message: "unsupported command, only TCP (CONNECT) is allowed",
+    };
+  }
+
+  const atype = view.getUint8(1);
+  let addressLength = 0;
+  let addressIndex = 2;
+  let address = "";
+  switch (atype) {
+    case 1:
+      addressLength = 4;
+      address = new Uint8Array(socks5DataBuffer.slice(addressIndex, addressIndex + addressLength)).join(".");
+      break;
+    case 3:
+      addressLength = new Uint8Array(socks5DataBuffer.slice(addressIndex, addressIndex + 1))[0];
+      addressIndex += 1;
+      address = new TextDecoder().decode(socks5DataBuffer.slice(addressIndex, addressIndex + addressLength));
+      break;
+    case 4:
+      addressLength = 16;
+      const dataView = new DataView(socks5DataBuffer.slice(addressIndex, addressIndex + addressLength));
+      const ipv6 = [];
+      for (let i = 0; i < 8; i++) {
+        ipv6.push(dataView.getUint16(i * 2).toString(16));
+      }
+      address = ipv6.join(":");
+      break;
+    default:
+      return {
+        hasError: true,
+        message: `invalid addressType is ${atype}`,
+      };
+  }
+
+  if (!address) {
+    return {
+      hasError: true,
+      message: `address is empty, addressType is ${atype}`,
+    };
+  }
+
+  const portIndex = addressIndex + addressLength;
+  const portBuffer = socks5DataBuffer.slice(portIndex, portIndex + 2);
+  const portRemote = new DataView(portBuffer).getUint16(0);
+  return {
+    hasError: false,
+    addressRemote: address,
+    portRemote,
+    rawClientData: socks5DataBuffer.slice(portIndex + 4),
+  };
+}
+
+async function handleTCPOutBound2(remoteSocket, addressRemote, portRemote, rawClientData, webSocket, log) {
+  if (/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(addressRemote)) addressRemote = `${atob('d3d3Lg==')}${addressRemote}${atob('LnNzbGlwLmlv')}`;
+  async function connectAndWrite(address, port) {
+    const tcpSocket2 = connect({
+      hostname: address,
+      port,
+    });
+    remoteSocket.value = tcpSocket2;
+    log(`connected to ${address}:${port}`);
+    const writer = tcpSocket2.writable.getWriter();
+    await writer.write(rawClientData);
+    writer.releaseLock();
+    return tcpSocket2;
+  }
+  async function retry() {
+    const tcpSocket2 = await connectAndWrite(proxyIP || addressRemote, portRemote);
+    tcpSocket2.closed
+      .catch((error) => {
+        console.log("retry tcpSocket closed error", error);
+      })
+      .finally(() => {
+        safeCloseWebSocket2(webSocket);
+      });
+    remoteSocketToWS2(tcpSocket2, webSocket, null, log);
+  }
+  const tcpSocket = await connectAndWrite(addressRemote, portRemote);
+  remoteSocketToWS2(tcpSocket, webSocket, retry, log);
+}
+
+function makeReadableWebSocketStream2(webSocketServer, earlyDataHeader, log) {
+  let readableStreamCancel = false;
+  const stream = new ReadableStream({
+    start(controller) {
+      webSocketServer.addEventListener("message", (event) => {
+        if (readableStreamCancel) {
+          return;
+        }
+        const message = event.data;
+        controller.enqueue(message);
+      });
+      webSocketServer.addEventListener("close", () => {
+        safeCloseWebSocket2(webSocketServer);
+        if (readableStreamCancel) {
+          return;
+        }
+        controller.close();
+      });
+      webSocketServer.addEventListener("error", (err) => {
+        log("webSocketServer error");
+        controller.error(err);
+      });
+      const { earlyData, error } = base64ToArrayBuffer2(earlyDataHeader);
+      if (error) {
+        controller.error(error);
+      } else if (earlyData) {
+        controller.enqueue(earlyData);
+      }
+    },
+    pull(controller) {},
+    cancel(reason) {
+      if (readableStreamCancel) {
+        return;
+      }
+      log(`readableStream was canceled, due to ${reason}`);
+      readableStreamCancel = true;
+      safeCloseWebSocket2(webSocketServer);
+    },
+  });
+  return stream;
+}
+
+async function remoteSocketToWS2(remoteSocket, webSocket, retry, log) {
+  let hasIncomingData = false;
+  await remoteSocket.readable
+    .pipeTo(
+      new WritableStream({
+        start() {},
+        async write(chunk, controller) {
+          hasIncomingData = true;
+          if (webSocket.readyState !== WS_READY_STATE_OPEN) {
+            controller.error("webSocket connection is not open");
+          }
+          webSocket.send(chunk);
+        },
+        close() {
+          log(`remoteSocket.readable is closed, hasIncomingData: ${hasIncomingData}`);
+        },
+        abort(reason) {
+          console.error("remoteSocket.readable abort", reason);
+        },
+      })
+    )
+    .catch((error) => {
+      console.error(`remoteSocketToWS2 error:`, error.stack || error);
+      safeCloseWebSocket2(webSocket);
+    });
+  if (hasIncomingData === false && retry) {
+    log(`retry`);
+    retry();
+  }
+}
+
+function base64ToArrayBuffer2(base64Str) {
+  if (!base64Str) {
+    return { error: null };
+  }
+  try {
+    base64Str = base64Str.replace(/-/g, "+").replace(/_/g, "/");
+    const decode = atob(base64Str);
+    const arryBuffer = Uint8Array.from(decode, (c) => c.charCodeAt(0));
+    return { earlyData: arryBuffer.buffer, error: null };
+  } catch (error) {
+    return { error };
+  }
+}
+
+let WS_READY_STATE_OPEN2 = 1;
+let WS_READY_STATE_CLOSING2 = 2;
+
+function safeCloseWebSocket2(socket) {
+  try {
+    if (socket.readyState === WS_READY_STATE_OPEN2 || socket.readyState === WS_READY_STATE_CLOSING2) {
+      socket.close();
+    }
+  } catch (error) {
+    console.error("safeCloseWebSocket2 error", error);
+  }
 }
