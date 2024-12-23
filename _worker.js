@@ -1,128 +1,72 @@
-// <!--GAMFC-->version base on commit 43fad05dcdae3b723c53c226f8181fc5bd47223e, time is 2023-06-22 15:20:02 UTC<!--GAMFC-END-->.
+// <!--GAMFC-->version base on commit 2b9927a1b12e03f8ad4731541caee2bc5c8f2e8e, time is 2023-06-22 15:09:34 UTC<!--GAMFC-END-->.
 // @ts-ignore
+
 import { connect } from 'cloudflare:sockets';
+// import { webcrypto as crypto } from "node:crypto"
+import { Buffer } from 'node:buffer'
+import AES from 'aes';
+import CRC32 from "crc-32";
+import jsSHA from "jssha";
+
 
 // How to generate your own UUID:
 // [Windows] Press "Win + R", input cmd and run:  Powershell -NoExit -Command "[guid]::NewGuid()"
-let userID = 'd342d11e-d424-4583-b36e-524ab1f0afa4';
+let userID = '720bf125-9c89-4e5e-bc28-15dc910e1b66';
 
-const proxyIPs = ['cdn-all.xn--b6gac.eu.org', 'cdn.xn--b6gac.eu.org', 'cdn-b100.xn--b6gac.eu.org', 'edgetunnel.anycast.eu.org', 'cdn.anycast.eu.org'];
-
-let proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
-
-let dohURL = 'https://sky.rethinkdns.com/1:-Pf_____9_8A_AMAIgE8kMABVDDmKOHTAKg='; // https://cloudflare-dns.com/dns-query or https://dns.google/dns-query
-
-// v2board api environment variables (optional) deprecated, please use planetscale.com instead
+let proxyIP = '';
 
 if (!isValidUUID(userID)) {
-	throw new Error('uuid is invalid');
+	throw new Error('uuid is not valid');
 }
+
+export const uuidCmdKeyMap = new Map();
+const KDFSaltConstVMessAEADKDF = "VMess AEAD KDF";
+const KDFSaltConstAuthIDEncryptionKey = "AES Auth ID Encryption";
+const KDFSaltConstVMessHeaderPayloadLengthAEADKey = "VMess Header AEAD Key_Length"
+const KDFSaltConstVMessHeaderPayloadLengthAEADIV = "VMess Header AEAD Nonce_Length"
+const KDFSaltConstVMessHeaderPayloadAEADKey = "VMess Header AEAD Key"
+const KDFSaltConstVMessHeaderPayloadAEADIV = "VMess Header AEAD Nonce"
+const KDFSaltConstAEADRespHeaderLenKey = "AEAD Resp Header Len Key"
+const KDFSaltConstAEADRespHeaderLenIV = "AEAD Resp Header Len IV"
+const KDFSaltConstAEADRespHeaderPayloadKey = "AEAD Resp Header Key"
+const KDFSaltConstAEADRespHeaderPayloadIV = "AEAD Resp Header IV"
 
 export default {
 	/**
 	 * @param {import("@cloudflare/workers-types").Request} request
-	 * @param {{UUID: string, PROXYIP: string, DNS_RESOLVER_URL: string, NODE_ID: int, API_HOST: string, API_TOKEN: string}} env
+	 * @param {{UUID: string, PROXYIP: string}} env
 	 * @param {import("@cloudflare/workers-types").ExecutionContext} ctx
 	 * @returns {Promise<Response>}
 	 */
 	async fetch(request, env, ctx) {
-		// uuid_validator(request);
 		try {
 			userID = env.UUID || userID;
 			proxyIP = env.PROXYIP || proxyIP;
-			dohURL = env.DNS_RESOLVER_URL || dohURL;
-			let userID_Path = userID;
-			if (userID.includes(',')) {
-				userID_Path = userID.split(',')[0];
+			if (!uuidCmdKeyMap.get(userID)) {
+				const cmdKey = await convert2CMDKey(userID);
+				uuidCmdKeyMap.set(userID, cmdKey);
+				console.log(Buffer.from(cmdKey).toString('hex'));
 			}
 			const upgradeHeader = request.headers.get('Upgrade');
 			if (!upgradeHeader || upgradeHeader !== 'websocket') {
 				const url = new URL(request.url);
 				switch (url.pathname) {
-					case '/cf':
-						return new Response(JSON.stringify(request.cf, null, 4), {
-							status: 200,
-							headers: {
-								"Content-Type": "application/json;charset=utf-8",
-							},
-						});
-					case `/${userID_Path}`: {
+					case '/':
+						return new Response(JSON.stringify(request.cf), { status: 200 });
+					case `/${userID}`: {
 						const vlessConfig = getVLESSConfig(userID, request.headers.get('Host'));
 						return new Response(`${vlessConfig}`, {
-							status: 200,
-							headers: {
-								"Content-Type": "text/html; charset=utf-8",
-							}
-						});
-					}
-					case `/sub/${userID_Path}`: {
-						const url = new URL(request.url);
-						const searchParams = url.searchParams;
-						let vlessConfig = createVLESSSub(userID, request.headers.get('Host'));
-						// If 'format' query param equals to 'clash', convert config to base64
-						if (searchParams.get('format') === 'clash') {
-							vlessConfig = btoa(vlessConfig);
-						}
-						// Construct and return response object
-						return new Response(vlessConfig, {
 							status: 200,
 							headers: {
 								"Content-Type": "text/plain;charset=utf-8",
 							}
 						});
 					}
-					case `/bestip/${userID_Path}`: {
-						const bestiplink = `https://sub.xf.free.hr/auto?host=${request.headers.get('Host')}&uuid=${userID_Path}`
-						const reqHeaders = new Headers(request.headers);
-						const bestipresponse = await fetch(bestiplink, { redirect: 'manual', headers: reqHeaders, });
-						// Construct and return response object
-						return bestipresponse
-					}
 					default:
-						// return new Response('Not found', { status: 404 });
-						// For any other path, reverse proxy to 'www.fmprc.gov.cn' and return the original response, caching it in the process
-						const hostnames = ['www.fmprc.gov.cn', 'www.xuexi.cn', 'www.gov.cn', 'mail.gov.cn', 'www.mofcom.gov.cn', 'www.gfbzb.gov.cn', 'www.miit.gov.cn', 'www.12377.cn'];
-						url.hostname = hostnames[Math.floor(Math.random() * hostnames.length)];
-						url.protocol = 'https:';
-
-						const newHeaders = new Headers(request.headers);
-						newHeaders.set('cf-connecting-ip', newHeaders.get('x-forwarded-for') || newHeaders.get('cf-connecting-ip'));
-						newHeaders.set('x-forwarded-for', newHeaders.get('cf-connecting-ip'));
-						newHeaders.set('x-real-ip', newHeaders.get('cf-connecting-ip'));
-						newHeaders.set('referer', 'https://www.google.com/q=edtunnel');
-
-						request = new Request(url, {
-							method: request.method,
-							headers: newHeaders,
-							body: request.body,
-							redirect: request.redirect,
-						});
-
-						const cache = caches.default;
-						let response = await cache.match(request);
-
-						if (!response) {
-							try {
-								response = await fetch(request, { redirect: 'manual' });
-							} catch (err) {
-								url.protocol = 'http:';
-								url.hostname = hostnames[Math.floor(Math.random() * hostnames.length)];
-								request = new Request(url, {
-									method: request.method,
-									headers: newHeaders,
-									body: request.body,
-									redirect: request.redirect,
-								});
-								response = await fetch(request, { redirect: 'manual' });
-							}
-
-							const cloneResponse = response.clone();
-							ctx.waitUntil(cache.put(request, cloneResponse));
-						}
-						return response;
+						return new Response('Not found', { status: 404 });
 				}
 			} else {
-				return await vlessOverWSHandler(request);
+				return await vmessOverWSHandler(request);
 			}
 		} catch (err) {
 			/** @type {Error} */ let e = err;
@@ -131,47 +75,41 @@ export default {
 	},
 };
 
-export async function uuid_validator(request) {
-	const hostname = request.headers.get('Host');
-	const currentDate = new Date();
 
-	const subdomain = hostname.split('.')[0];
-	const year = currentDate.getFullYear();
-	const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-	const day = String(currentDate.getDate()).padStart(2, '0');
 
-	const formattedDate = `${year}-${month}-${day}`;
-
-	// const daliy_sub = formattedDate + subdomain
-	const hashHex = await hashHex_f(subdomain);
-	// subdomain string contains timestamps utc and uuid string TODO.
-	console.log(hashHex, subdomain, formattedDate);
-}
-
-export async function hashHex_f(string) {
-	const encoder = new TextEncoder();
-	const data = encoder.encode(string);
-	const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-	const hashArray = Array.from(new Uint8Array(hashBuffer));
-	const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
-	return hashHex;
+/**
+ * 
+ * @param {string} userID 
+ * @returns
+ */
+async function convert2CMDKey(userID) {
+	const cmdKeySource = Buffer.concat([Buffer.from(userID.replaceAll("-", ""), 'hex'), Buffer.from('c48619fe-8f02-49e0-b9e9-edf763e17e21')]);
+	const cmdKey = await crypto.subtle.digest(
+		{
+			name: 'MD5',
+		},
+		cmdKeySource
+	);
+	return Buffer.from(cmdKey);
 }
 
 /**
- * Handles VLESS over WebSocket requests by creating a WebSocket pair, accepting the WebSocket connection, and processing the VLESS header.
- * @param {import("@cloudflare/workers-types").Request} request The incoming request object.
- * @returns {Promise<Response>} A Promise that resolves to a WebSocket response object.
+ * 
+ * @param {import("@cloudflare/workers-types").Request} request
  */
-async function vlessOverWSHandler(request) {
+async function vmessOverWSHandler(request) {
+
+	/** @type {import("@cloudflare/workers-types").WebSocket[]} */
+	// @ts-ignore
 	const webSocketPair = new WebSocketPair();
 	const [client, webSocket] = Object.values(webSocketPair);
+
 	webSocket.accept();
 
 	let address = '';
 	let portWithRandomLog = '';
-	let currentDate = new Date();
 	const log = (/** @type {string} */ info, /** @type {string | undefined} */ event) => {
-		console.log(`[${currentDate} ${address}:${portWithRandomLog}] ${info}`, event || '');
+		console.log(`[${address}:${portWithRandomLog}] ${info}`, event || '');
 	};
 	const earlyDataHeader = request.headers.get('sec-websocket-protocol') || '';
 
@@ -183,7 +121,8 @@ async function vlessOverWSHandler(request) {
 	};
 	let udpStreamWrite = null;
 	let isDns = false;
-
+	let reqMaskFun = null;
+	const maskFun = null;
 	// ws --> remote
 	readableWebSocketStream.pipeTo(new WritableStream({
 		async write(chunk, controller) {
@@ -192,51 +131,66 @@ async function vlessOverWSHandler(request) {
 			}
 			if (remoteSocketWapper.value) {
 				const writer = remoteSocketWapper.value.writable.getWriter()
-				await writer.write(chunk);
+				const chunkBuffer = Buffer.from(chunk);
+				const dataLength = chunkBuffer.subarray(0, 2).readUInt16BE(0);
+				const realSize = reqMaskFun() ^ dataLength;
+				if (chunkBuffer.length - 2 !== realSize) {
+					throw new Error('request body package size is large than chunk size, need split it');
+				}
+				const rawClientData = chunkBuffer.subarray(2, realSize + 2);
+				await writer.write(rawClientData);
 				writer.releaseLock();
 				return;
 			}
 
+			/** @type{ { requestBody: Buffer}} */
 			const {
 				hasError,
 				message,
 				portRemote = 443,
 				addressRemote = '',
-				rawDataIndex,
-				vlessVersion = new Uint8Array([0, 0]),
+				rawVMESSEncryptedDataIndex,
+				requestBody,
+				requestMaskFun,
+				respMaskFun,
 				isUDP,
-			} = processVlessHeader(chunk, userID);
+				vmessResponseHeader
+			} = await decodeVMESSRequestHeader(chunk, userID);
 			address = addressRemote;
-			portWithRandomLog = `${portRemote} ${isUDP ? 'udp' : 'tcp'} `;
+			reqMaskFun = requestMaskFun;
+			portWithRandomLog = `${portRemote}--${Math.random()} ${isUDP ? 'udp ' : 'tcp '
+				} `;
 			if (hasError) {
 				// controller.error(message);
 				throw new Error(message); // cf seems has bug, controller.error will not end stream
 				// webSocket.close(1000, message);
 				return;
 			}
-
-			// If UDP and not DNS port, close it
-			if (isUDP && portRemote !== 53) {
-				throw new Error('UDP proxy only enabled for DNS which is port 53');
-				// cf seems has bug, controller.error will not end stream
+			// if UDP but port not DNS port, close it
+			if (isUDP) {
+				if (portRemote === 53) {
+					isDns = true;
+				} else {
+					// controller.error('UDP proxy only enable for DNS which is port 53');
+					throw new Error('UDP proxy only enable for DNS which is port 53'); // cf seems has bug, controller.error will not end stream
+					return;
+				}
 			}
 
-			if (isUDP && portRemote === 53) {
-				isDns = true;
+			const dateLength = requestBody.subarray(0, 2).readUInt16BE(0);
+			const realSize = reqMaskFun() ^ dateLength;
+			if (requestBody.length - 2 !== realSize) {
+				throw new Error('request body package size is large than chunk size, need split it');
 			}
-
-			// ["version", "附加信息长度 N"]
-			const vlessResponseHeader = new Uint8Array([vlessVersion[0], 0]);
-			const rawClientData = chunk.slice(rawDataIndex);
-
+			const rawClientData = requestBody.subarray(2, realSize + 2);
 			// TODO: support udp here when cf runtime has udp support
 			if (isDns) {
-				const { write } = await handleUDPOutBound(webSocket, vlessResponseHeader, log);
+				const { write } = await handleUDPOutBound(webSocket, vmessResponseHeader, log);
 				udpStreamWrite = write;
 				udpStreamWrite(rawClientData);
 				return;
 			}
-			handleTCPOutBound(remoteSocketWapper, addressRemote, portRemote, rawClientData, webSocket, vlessResponseHeader, log);
+			handleTCPOutBound(remoteSocketWapper, addressRemote, portRemote, rawClientData, webSocket, { vmessResponseHeader, respMaskFun }, log);
 		},
 		close() {
 			log(`readableWebSocketStream is close`);
@@ -250,6 +204,7 @@ async function vlessOverWSHandler(request) {
 
 	return new Response(null, {
 		status: 101,
+		// @ts-ignore
 		webSocket: client,
 	});
 }
@@ -262,18 +217,11 @@ async function vlessOverWSHandler(request) {
  * @param {number} portRemote The remote port to connect to.
  * @param {Uint8Array} rawClientData The raw client data to write.
  * @param {import("@cloudflare/workers-types").WebSocket} webSocket The WebSocket to pass the remote socket to.
- * @param {Uint8Array} vlessResponseHeader The VLESS response header.
+ * @param {{vmessResponseHeader: Buffer, respMaskFun: ()=> number}} vmessResponseHeader The VLESS response header.
  * @param {function} log The logging function.
  * @returns {Promise<void>} The remote socket.
  */
-async function handleTCPOutBound(remoteSocket, addressRemote, portRemote, rawClientData, webSocket, vlessResponseHeader, log,) {
-
-	/**
-	 * Connects to a given address and port and writes data to the socket.
-	 * @param {string} address The address to connect to.
-	 * @param {number} port The port to connect to.
-	 * @returns {Promise<import("@cloudflare/workers-types").Socket>} A Promise that resolves to the connected socket.
-	 */
+async function handleTCPOutBound(remoteSocket, addressRemote, portRemote, rawClientData, webSocket, vmessResponseHeader, log,) {
 	async function connectAndWrite(address, port) {
 		/** @type {import("@cloudflare/workers-types").Socket} */
 		const tcpSocket = connect({
@@ -288,52 +236,62 @@ async function handleTCPOutBound(remoteSocket, addressRemote, portRemote, rawCli
 		return tcpSocket;
 	}
 
-	/**
-	 * Retries connecting to the remote address and port if the Cloudflare socket has no incoming data.
-	 * @returns {Promise<void>} A Promise that resolves when the retry is complete.
-	 */
+	// if the cf connect tcp socket have no incoming data, we retry to redirect ip
 	async function retry() {
 		const tcpSocket = await connectAndWrite(proxyIP || addressRemote, portRemote)
+		// no matter retry success or not, close websocket
 		tcpSocket.closed.catch(error => {
 			console.log('retry tcpSocket closed error', error);
 		}).finally(() => {
 			safeCloseWebSocket(webSocket);
 		})
-		remoteSocketToWS(tcpSocket, webSocket, vlessResponseHeader, null, log);
+		remoteSocketToWS(tcpSocket, webSocket, vmessResponseHeader, null, log);
 	}
 
 	const tcpSocket = await connectAndWrite(addressRemote, portRemote);
 
 	// when remoteSocket is ready, pass to websocket
 	// remote--> ws
-	remoteSocketToWS(tcpSocket, webSocket, vlessResponseHeader, retry, log);
+	remoteSocketToWS(tcpSocket, webSocket, vmessResponseHeader, retry, log);
 }
 
 /**
- * Creates a readable stream from a WebSocket server, allowing for data to be read from the WebSocket.
- * @param {import("@cloudflare/workers-types").WebSocket} webSocketServer The WebSocket server to create the readable stream from.
- * @param {string} earlyDataHeader The header containing early data for WebSocket 0-RTT.
- * @param {(info: string)=> void} log The logging function.
- * @returns {ReadableStream} A readable stream that can be used to read data from the WebSocket.
+ * 
+ * @param {import("@cloudflare/workers-types").WebSocket} webSocketServer
+ * @param {string} earlyDataHeader for ws 0rtt
+ * @param {(info: string)=> void} log for ws 0rtt
  */
 function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
 	let readableStreamCancel = false;
 	const stream = new ReadableStream({
 		start(controller) {
 			webSocketServer.addEventListener('message', (event) => {
+				if (readableStreamCancel) {
+					return;
+				}
 				const message = event.data;
 				controller.enqueue(message);
 			});
 
+			// The event means that the client closed the client -> server stream.
+			// However, the server -> client stream is still open until you call close() on the server side.
+			// The WebSocket protocol says that a separate close message must be sent in each direction to fully close the socket.
 			webSocketServer.addEventListener('close', () => {
+				// client send close, need close server
+				// if stream is cancel, skip controller.close
 				safeCloseWebSocket(webSocketServer);
+				if (readableStreamCancel) {
+					return;
+				}
 				controller.close();
-			});
-
+			}
+			);
 			webSocketServer.addEventListener('error', (err) => {
 				log('webSocketServer has error');
 				controller.error(err);
-			});
+			}
+			);
+			// for ws 0rtt
 			const { earlyData, error } = base64ToArrayBuffer(earlyDataHeader);
 			if (error) {
 				controller.error(error);
@@ -346,8 +304,13 @@ function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
 			// if ws can stop read if stream is full, we can implement backpressure
 			// https://streams.spec.whatwg.org/#example-rs-push-backpressure
 		},
-
 		cancel(reason) {
+			// 1. pipe WritableStream has error, this cancel will called, so ws handle server close into here
+			// 2. if readableStream is cancel, all controller.close/enqueue need skip,
+			// 3. but from testing controller.error still work even if readableStream is cancel
+			if (readableStreamCancel) {
+				return;
+			}
 			log(`ReadableStream was canceled, due to ${reason}`)
 			readableStreamCancel = true;
 			safeCloseWebSocket(webSocketServer);
@@ -355,68 +318,144 @@ function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
 	});
 
 	return stream;
+
 }
 
 // https://xtls.github.io/development/protocols/vless.html
 // https://github.com/zizifn/excalidraw-backup/blob/main/v2ray-protocol.excalidraw
 
 /**
- * Processes the VLESS header buffer and returns an object with the relevant information.
- * @param {ArrayBuffer} vlessBuffer The VLESS header buffer to process.
- * @param {string} userID The user ID to validate against the UUID in the VLESS header.
- * @returns {{
- *  hasError: boolean,
- *  message?: string,
- *  addressRemote?: string,
- *  addressType?: number,
- *  portRemote?: number,
- *  rawDataIndex?: number,
- *  vlessVersion?: Uint8Array,
- *  isUDP?: boolean
- * }} An object with the relevant information extracted from the VLESS header buffer.
+ * 
+ * @param { ArrayBuffer} vmessBuffer 
+ * @param {string} userID 
+ * @returns  
  */
-function processVlessHeader(vlessBuffer, userID) {
-	if (vlessBuffer.byteLength < 24) {
+export async function decodeVMESSRequestHeader(
+	vmessBuffer,
+	userID
+) {
+	const cmdkey = uuidCmdKeyMap.get(userID);
+	if (!cmdkey) {
+		return {
+			hasError: true,
+			message: 'invalid userID',
+		};
+	}
+	if (vmessBuffer.byteLength < 24) {
 		return {
 			hasError: true,
 			message: 'invalid data',
 		};
 	}
 
-	const version = new Uint8Array(vlessBuffer.slice(0, 1));
-	let isValidUser = false;
-	let isUDP = false;
-	const slicedBuffer = new Uint8Array(vlessBuffer.slice(1, 17));
-	const slicedBufferString = stringify(slicedBuffer);
-	// check if userID is valid uuid or uuids split by , and contains userID in it otherwise return error message to console
-	const uuids = userID.includes(',') ? userID.split(",") : [userID];
-	// uuid_validator(hostName, slicedBufferString);
 
+	const vmessNodeBuffer = Buffer.from(vmessBuffer);
+	console.log(vmessNodeBuffer.toString("hex"));
+	// 1. authid(16 byte)
+	const authIDEncrypted = vmessNodeBuffer.subarray(0, 16);
+	let authIDSaltList = [Buffer.from(KDFSaltConstVMessAEADKDF), Buffer.from(KDFSaltConstAuthIDEncryptionKey)]
+	let authIDKey = await hmac_rec2(cmdkey, [...authIDSaltList])
+	authIDKey = authIDKey.subarray(0, 16);
+	const authIDAES = new AES(groupBufferBy4byte(authIDKey));
+	const authIDDecrypted = authIDAES.decrypt(groupBufferBy4byte(authIDEncrypted));
+	const authIDDecryptedHex = [];
+	for (const uint32Value of authIDDecrypted) {
+		const hexValue = uint32Value.toString(16).padStart(8, '0'); // Ensure each value is 8 characters long
+		authIDDecryptedHex.push(hexValue);
+	}
+	const authIDDecryptedBuffer = Buffer.from(authIDDecryptedHex.join(''), "hex");
+	const time = authIDDecryptedBuffer.readBigInt64BE(0);
+	console.log(time);
+	const rand = authIDDecryptedBuffer.readInt32BE(8);
+	const crc32Zero = authIDDecryptedBuffer.readUInt32BE(12);
 
-	// isValidUser = uuids.some(userUuid => slicedBufferString === userUuid.trim());
-	isValidUser = uuids.some(userUuid => slicedBufferString === userUuid.trim()) || uuids.length === 1 && slicedBufferString === uuids[0].trim();
-
-	console.log(`userID: ${slicedBufferString}`);
-
-	if (!isValidUser) {
+	const authIDChecksumSign = CRC32.buf(authIDDecryptedBuffer.subarray(0, 12));
+	const authIDChecksumUnSign = authIDChecksumSign >>> 0;
+	if (authIDChecksumUnSign !== crc32Zero) {
 		return {
 			hasError: true,
-			message: 'invalid user',
+			message: 'auth id checksum error',
+		};
+	}
+	const now = BigInt(Math.trunc(Date.now() / 1000));
+	if (now - time < 120) {
+		console.log("auth id time > 120s")
+		// return {
+		// 	hasError: true,
+		// 	message: 'auth id time > 120s',
+		// };
+	}
+
+	// 2. OpenVMessAEADHeader
+	// 2.1 payloadHeaderLengthAEADEncrypted(18 bytes)
+	// 2.2 nonce(8 bytes) 8f88be3d980ed2f8
+	const payloadHeaderLengthAEADEncrypted = vmessNodeBuffer.subarray(16, 34)
+	const nonceForOpenVMessAEADHeader = vmessNodeBuffer.subarray(34, 42)
+	const payloadHeaderLengthSaltList =
+		[Buffer.from(KDFSaltConstVMessAEADKDF),
+		Buffer.from(KDFSaltConstVMessHeaderPayloadLengthAEADKey),
+			authIDEncrypted, nonceForOpenVMessAEADHeader]
+	const payloadHeaderLengthAEADKey = (await hmac_rec2(cmdkey, payloadHeaderLengthSaltList)).subarray(0, 16);
+	const payloadHeaderNonceSaltList =
+		[Buffer.from(KDFSaltConstVMessAEADKDF),
+		Buffer.from(KDFSaltConstVMessHeaderPayloadLengthAEADIV),
+			authIDEncrypted, nonceForOpenVMessAEADHeader]
+	const payloadHeaderLengthAEADNonce = (await hmac_rec2(cmdkey, payloadHeaderNonceSaltList)).subarray(0, 12);
+	const aesGCMPayloadHeaderLengthAlgorithm = { name: 'AES-GCM', iv: payloadHeaderLengthAEADNonce, additionalData: authIDEncrypted };
+	const payloadHeaderLengthGCMKEY =
+		await crypto.subtle.importKey('raw', payloadHeaderLengthAEADKey, 'AES-GCM', false, ['decrypt']);
+	const decryptedAEADHeaderLengthPayload = await crypto.subtle.decrypt(aesGCMPayloadHeaderLengthAlgorithm, payloadHeaderLengthGCMKEY, payloadHeaderLengthAEADEncrypted);
+	const headerLength = Buffer.from(decryptedAEADHeaderLengthPayload).readInt16BE();
+
+	// 2.3 payloadHeaderAEADEncrypted
+	const rawVMESSEncryptedDataIndex = 42 + headerLength + 16; // use length + 16
+	const payloadHeaderAEADEncrypted = vmessNodeBuffer.subarray(42, rawVMESSEncryptedDataIndex);
+	let payloadHeaderSaltList = [Buffer.from(KDFSaltConstVMessAEADKDF), Buffer.from(KDFSaltConstVMessHeaderPayloadAEADKey), authIDEncrypted, nonceForOpenVMessAEADHeader]
+	const payloadHeaderAEADKey = (await hmac_rec2(cmdkey, payloadHeaderSaltList)).subarray(0, 16);
+	payloadHeaderSaltList = [Buffer.from(KDFSaltConstVMessAEADKDF), Buffer.from(KDFSaltConstVMessHeaderPayloadAEADIV), authIDEncrypted, nonceForOpenVMessAEADHeader]
+	const payloadHeaderAEADIV = (await hmac_rec2(cmdkey, payloadHeaderSaltList)).subarray(0, 12);
+	const aesGCMPayloadHeaderAlgorithm = { name: 'AES-GCM', iv: payloadHeaderAEADIV, additionalData: authIDEncrypted };
+	const payloadHeaderGCMKEY =
+		await crypto.subtle.importKey('raw', payloadHeaderAEADKey, 'AES-GCM', false, ['decrypt']);
+
+	const decryptedAEADHeader = await crypto.subtle.decrypt(aesGCMPayloadHeaderAlgorithm, payloadHeaderGCMKEY, payloadHeaderAEADEncrypted);
+	console.log(decryptedAEADHeader);
+	const decryptedAEADHeaderPayload = Buffer.from(decryptedAEADHeader);
+	let vmessHeadercursor = 1;
+
+	// https://xtls.github.io/development/protocols/vmess.html#%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82
+	const version = new Uint8Array(decryptedAEADHeaderPayload.subarray(0, 1));
+	const requestBodyIV = decryptedAEADHeaderPayload.subarray(1, 17);
+	const requestBodyKey = decryptedAEADHeaderPayload.subarray(17, 33);
+	const vmessResponseHeaderV = decryptedAEADHeaderPayload.subarray(33, 34);
+	const option = decryptedAEADHeaderPayload.subarray(34, 35)
+	const paddingLenAndSecurity = decryptedAEADHeaderPayload.subarray(35, 36);
+	const paddingLen = paddingLenAndSecurity[0] >> 4; // 0x65 >> 4 = 0x6
+	// for now ONLY support 5: "NONE",
+	// 0: "UNKNOWN",
+	// 1: "LEGACY",
+	// 2: "AUTO",
+	// 3: "AES128_GCM",
+	// 4: "CHACHA20_POLY1305",
+	// 5: "NONE",
+	// 6: "ZERO",
+	const security = paddingLenAndSecurity[0] & 0x0F; // // 0x65 & 0x0F = 0x6
+	if (security !== 5) {
+		return {
+			hasError: true,
+			message: `Only support security as NONE`,
 		};
 	}
 
-	const optLength = new Uint8Array(vlessBuffer.slice(17, 18))[0];
-	//skip opt for now
+	const resverd = decryptedAEADHeaderPayload.subarray(36, 37)[0];
 
-	const command = new Uint8Array(
-		vlessBuffer.slice(18 + optLength, 18 + optLength + 1)
-	)[0];
-
+	// VMESS header btye 37
+	const command = decryptedAEADHeaderPayload.subarray(37, 38)[0];
 	// 0x01 TCP
 	// 0x02 UDP
 	// 0x03 MUX
+	let isUDP = false;
 	if (command === 1) {
-		isUDP = false;
 	} else if (command === 2) {
 		isUDP = true;
 	} else {
@@ -425,50 +464,26 @@ function processVlessHeader(vlessBuffer, userID) {
 			message: `command ${command} is not support, command 01-tcp,02-udp,03-mux`,
 		};
 	}
-	const portIndex = 18 + optLength + 1;
-	const portBuffer = vlessBuffer.slice(portIndex, portIndex + 2);
-	// port is big-Endian in raw data etc 80 == 0x005d
-	const portRemote = new DataView(portBuffer).getUint16(0);
-
-	let addressIndex = portIndex + 2;
-	const addressBuffer = new Uint8Array(
-		vlessBuffer.slice(addressIndex, addressIndex + 1)
-	);
+	const portRemote = decryptedAEADHeaderPayload.subarray(38, 40).readUInt16BE();
 
 	// 1--> ipv4  addressLength =4
 	// 2--> domain name addressLength=addressBuffer[1]
 	// 3--> ipv6  addressLength =16
-	const addressType = addressBuffer[0];
-	let addressLength = 0;
-	let addressValueIndex = addressIndex + 1;
+	const addressType = decryptedAEADHeaderPayload.subarray(40, 41)[0]
+	vmessHeadercursor = 41;
 	let addressValue = '';
 	switch (addressType) {
 		case 1:
-			addressLength = 4;
-			addressValue = new Uint8Array(
-				vlessBuffer.slice(addressValueIndex, addressValueIndex + addressLength)
-			).join('.');
+			addressValue = decryptedAEADHeaderPayload.subarray(vmessHeadercursor, vmessHeadercursor += 4).join('.');
 			break;
 		case 2:
-			addressLength = new Uint8Array(
-				vlessBuffer.slice(addressValueIndex, addressValueIndex + 1)
-			)[0];
-			addressValueIndex += 1;
-			addressValue = new TextDecoder().decode(
-				vlessBuffer.slice(addressValueIndex, addressValueIndex + addressLength)
-			);
+			const addressLength = decryptedAEADHeaderPayload.subarray(vmessHeadercursor, vmessHeadercursor += 1).readUInt8();
+			addressValue = decryptedAEADHeaderPayload.subarray(vmessHeadercursor, vmessHeadercursor += addressLength).toString("utf8");
 			break;
 		case 3:
-			addressLength = 16;
-			const dataView = new DataView(
-				vlessBuffer.slice(addressValueIndex, addressValueIndex + addressLength)
-			);
+			const addressValueBuffer = decryptedAEADHeaderPayload.subarray(vmessHeadercursor, vmessHeadercursor += 16);
 			// 2001:0db8:85a3:0000:0000:8a2e:0370:7334
-			const ipv6 = [];
-			for (let i = 0; i < 8; i++) {
-				ipv6.push(dataView.getUint16(i * 2).toString(16));
-			}
-			addressValue = ipv6.join(':');
+			addressValue = addressValueBuffer.toString('hex').match(/.{1,4}/g).join(':');
 			// seems no need add [] for ipv6
 			break;
 		default:
@@ -484,33 +499,170 @@ function processVlessHeader(vlessBuffer, userID) {
 		};
 	}
 
-	return {
+	// smowhow v2ray need validate network raw data buffer.BytesTo(-4), but again I'm too stupid, skip this
+	const padding = decryptedAEADHeaderPayload.subarray(vmessHeadercursor, vmessHeadercursor += paddingLen);
+	const checkSum = decryptedAEADHeaderPayload.subarray(vmessHeadercursor, vmessHeadercursor += 4);
+
+
+	// key and iv for response header length
+	const responseBodyKeyArrayBuffer = (await crypto.subtle.digest("SHA-256", requestBodyKey)).slice(0, 16);
+	const responseBodyKey = Buffer.from(responseBodyKeyArrayBuffer);
+	const responseBodyIVArrayBuffer = (await crypto.subtle.digest("SHA-256", requestBodyIV)).slice(0, 16);
+	const responseBodyIV = Buffer.from(responseBodyIVArrayBuffer);
+
+
+	let keyList = [Buffer.from(KDFSaltConstVMessAEADKDF), Buffer.from(KDFSaltConstAEADRespHeaderLenKey)]
+	/** @type{Buffer} */
+	let aeadResponseHeaderLengthEncryptionKey = await hmac_rec2(responseBodyKey, [...keyList])
+	aeadResponseHeaderLengthEncryptionKey = aeadResponseHeaderLengthEncryptionKey.subarray(0, 16)
+	// console.log(aeadResponseHeaderLengthEncryptionKey);
+	keyList = [Buffer.from(KDFSaltConstVMessAEADKDF), Buffer.from(KDFSaltConstAEADRespHeaderLenIV)]
+
+	let aeadResponseHeaderLengthEncryptionIV = await hmac_rec2(responseBodyIV, [...keyList])
+	aeadResponseHeaderLengthEncryptionIV = aeadResponseHeaderLengthEncryptionIV.subarray(0, 12)
+	// console.log(aeadResponseHeaderLengthEncryptionIV);
+
+	// key and iv for response header
+	keyList = [Buffer.from(KDFSaltConstVMessAEADKDF), Buffer.from(KDFSaltConstAEADRespHeaderPayloadKey)]
+	/** @type{Buffer} */
+	let aeadResponseHeaderPayloadEncryptionKey = await hmac_rec2(responseBodyKey, [...keyList])
+	aeadResponseHeaderPayloadEncryptionKey = aeadResponseHeaderPayloadEncryptionKey.subarray(0, 16)
+	// console.log(aeadResponseHeaderPayloadEncryptionKey);
+	keyList = [Buffer.from(KDFSaltConstVMessAEADKDF), Buffer.from(KDFSaltConstAEADRespHeaderPayloadIV)]
+
+	let aeadResponseHeaderPayloadEncryptionIV = await hmac_rec2(responseBodyIV, [...keyList])
+	aeadResponseHeaderPayloadEncryptionIV = aeadResponseHeaderPayloadEncryptionIV.subarray(0, 12)
+	// console.log(aeadResponseHeaderPayloadEncryptionIV);
+	// https://xtls.github.io/development/protocols/vmess.html#%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BA%94%E7%AD%94
+	// ååºè®¤è¯ V	éé¡¹ Opt	æä»¤ Cmd	æä»¤é¿åº¦ M
+	// 				00			00			00 // we not support cmd in cf worker
+	const rawRespHeader = Buffer.concat([vmessResponseHeaderV, Buffer.from("000000", "hex")])
+	const lengthBuffer = new ArrayBuffer(2);
+	new DataView(lengthBuffer).setInt16(0, rawRespHeader.length, false)
+
+	const aesGCMRespPayloadHeaderLengthAlgorithm = { name: 'AES-GCM', iv: aeadResponseHeaderLengthEncryptionIV, additionalData: undefined };
+	const respPayloadHeaderLengthGCMKEY =
+		await crypto.subtle.importKey('raw', aeadResponseHeaderLengthEncryptionKey, 'AES-GCM', false, ["encrypt", "decrypt"]);
+	const encryptedAEADHeaderLengthPayload = await crypto.subtle.encrypt(aesGCMRespPayloadHeaderLengthAlgorithm, respPayloadHeaderLengthGCMKEY, lengthBuffer);
+	// console.log(decryptedAEADHeaderLengthPayload);
+
+	const aaeadResponseHeaderPayloadAlgorithmAlgorithm = { name: 'AES-GCM', iv: aeadResponseHeaderPayloadEncryptionIV, additionalData: undefined };
+	const aeadResponseHeaderPayloadAlgorithmGCMKEY =
+		await crypto.subtle.importKey('raw', aeadResponseHeaderPayloadEncryptionKey, 'AES-GCM', false, ["encrypt", "decrypt"]);
+	const encryptedAEADHeaderPayload = await crypto.subtle.encrypt(aaeadResponseHeaderPayloadAlgorithmAlgorithm, aeadResponseHeaderPayloadAlgorithmGCMKEY, rawRespHeader);
+	// console.log(encryptedAEADHeaderPayload);
+
+	const requestMaskFun = chunkSizeParser(requestBodyIV);
+	const respMaskFun = chunkSizeParser(responseBodyIV);
+
+	const result = {
 		hasError: false,
 		addressRemote: addressValue,
 		addressType,
 		portRemote,
-		rawDataIndex: addressValueIndex + addressLength,
-		vlessVersion: version,
+		version,
+		vmessResponseHeaderV,
+		vmessResponseHeader: Buffer.concat([Buffer.from(encryptedAEADHeaderLengthPayload), Buffer.from(encryptedAEADHeaderPayload)]),
 		isUDP,
-	};
+		security,
+		option,
+		requestBodyKey,
+		requestBodyIV,
+		rawVMESSEncryptedDataIndex,
+		requestBody: vmessNodeBuffer.subarray(rawVMESSEncryptedDataIndex),
+		aeadResponseHeaderLengthEncryptionKey,
+		aeadResponseHeaderLengthEncryptionIV,
+		aeadResponseHeaderPayloadEncryptionKey,
+		aeadResponseHeaderPayloadEncryptionIV,
+		requestMaskFun,
+		respMaskFun
+	}
+	// console.log(JSON.stringify(result));
+	return result;
 }
 
 
+class ChunkSizeParser {
+	constructor(nonce, data) {
+		this.nonce = nonce;
+		this.data = data;
+		const shaObj = new jsSHA("SHAKE128", "ARRAYBUFFER");
+		shaObj.update(nonce);
+		const maskHEX = shaObj.getHash("HEX", { outputLen: 256 })
+		console.log(maskHEX);
+		const maskBuffer = Buffer.from(maskHEX, "hex");
+		this.maskBuffer = maskBuffer;
+	}
+	encode() {
+
+	}
+
+	decode() {
+
+	}
+}
 /**
- * Converts a remote socket to a WebSocket connection.
- * @param {import("@cloudflare/workers-types").Socket} remoteSocket The remote socket to convert.
- * @param {import("@cloudflare/workers-types").WebSocket} webSocket The WebSocket to connect to.
- * @param {ArrayBuffer | null} vlessResponseHeader The VLESS response header.
- * @param {(() => Promise<void>) | null} retry The function to retry the connection if it fails.
- * @param {(info: string) => void} log The logging function.
- * @returns {Promise<void>} A Promise that resolves when the conversion is complete.
+ * get real size for request 
+ * @param {*} nonce 
+ * @returns 
  */
-async function remoteSocketToWS(remoteSocket, webSocket, vlessResponseHeader, retry, log) {
+function chunkSizeParser(nonce) {
+	const shaObj = new jsSHA("SHAKE128", "ARRAYBUFFER");
+	shaObj.update(nonce);
+	const maskHEX = shaObj.getHash("HEX", { outputLen: 10240 })
+	// console.log("xxxxx-----", maskHEX);
+	const maskBuffer = Buffer.from(maskHEX, "hex");
+	let index = 0;
+	function next() {
+		const mask = maskBuffer.readUint16BE(index);
+		index += 2;
+		// console.log("xxxxx---index--", index);
+		return mask;
+	}
+
+	return next;
+}
+
+/**
+ * 
+ * @param {Buffer} requestBody 
+ * @param {Buffer} requestBodyIV 
+ */
+export async function decodeVMESSRequestBody(requestBody, requestBodyIV) {
+
+
+}
+
+
+
+
+/**
+ * 
+ * @param {Buffer} authIDKey 
+ * @returns 
+ */
+function groupBufferBy4byte(authIDKey) {
+	const result = [];
+	for (let i = 0; i < authIDKey.length; i += 4) {
+		result.push(authIDKey.readUInt32BE(i));
+	}
+	return result;
+}
+
+/**
+ * 
+ * @param {import("@cloudflare/workers-types").Socket} remoteSocket 
+ * @param {import("@cloudflare/workers-types").WebSocket} webSocket 
+ * @param {{vmessResponseHeader: Buffer, respMaskFun: ()=> number}} vlessResponseHeader The VLESS response header.
+ * @param {(() => Promise<void>) | null} retry
+ * @param {*} log 
+ */
+async function remoteSocketToWS(remoteSocket, webSocket, { vmessResponseHeader, respMaskFun }, retry, log) {
 	// remote--> ws
 	let remoteChunkCount = 0;
 	let chunks = [];
 	/** @type {ArrayBuffer | null} */
-	let vlessHeader = vlessResponseHeader;
+	let vmessHeader = vmessResponseHeader;
 	let hasIncomingData = false; // check if remoteSocket has incoming data
 	await remoteSocket.readable
 		.pipeTo(
@@ -524,23 +676,36 @@ async function remoteSocketToWS(remoteSocket, webSocket, vlessResponseHeader, re
 				 */
 				async write(chunk, controller) {
 					hasIncomingData = true;
-					remoteChunkCount++;
+					// remoteChunkCount++;
 					if (webSocket.readyState !== WS_READY_STATE_OPEN) {
 						controller.error(
 							'webSocket.readyState is not open, maybe close'
 						);
 					}
-					if (vlessHeader) {
-						webSocket.send(await new Blob([vlessHeader, chunk]).arrayBuffer());
-						vlessHeader = null;
+					if (vmessHeader) {
+						const realSize = chunk.length;
+						const mask = respMaskFun();
+						const size = mask ^ realSize;
+						const sizeBuffer = new ArrayBuffer(2);
+						new DataView(sizeBuffer).setInt16(0, size, false);
+						const respBuffer = Buffer.concat([vmessHeader, Buffer.from(sizeBuffer), chunk]);
+						// console.log(respBuffer.toString("hex"));
+						webSocket.send(respBuffer);
+						vmessHeader = null;
 					} else {
-						// console.log(`remoteSocketToWS send chunk ${chunk.byteLength}`);
 						// seems no need rate limit this, CF seems fix this??..
 						// if (remoteChunkCount > 20000) {
 						// 	// cf one package is 4096 byte(4kb),  4096 * 20000 = 80M
 						// 	await delay(1);
 						// }
-						webSocket.send(chunk);
+						const realSize = chunk.length;
+						const mask = respMaskFun();
+						const size = mask ^ realSize;
+						const sizeBuffer = new ArrayBuffer(2);
+						new DataView(sizeBuffer).setInt16(0, size, false);
+						const respBuffer = Buffer.concat([Buffer.from(sizeBuffer), chunk]);
+						// console.log(respBuffer.toString("hex"));
+						webSocket.send(respBuffer);
 					}
 				},
 				close() {
@@ -570,13 +735,13 @@ async function remoteSocketToWS(remoteSocket, webSocket, vlessResponseHeader, re
 }
 
 /**
- * Decodes a base64 string into an ArrayBuffer.
- * @param {string} base64Str The base64 string to decode.
- * @returns {{earlyData: ArrayBuffer|null, error: Error|null}} An object containing the decoded ArrayBuffer or null if there was an error, and any error that occurred during decoding or null if there was no error.
+ * 
+ * @param {string} base64Str 
+ * @returns 
  */
 function base64ToArrayBuffer(base64Str) {
 	if (!base64Str) {
-		return { earlyData: null, error: null };
+		return { error: null };
 	}
 	try {
 		// go use modified Base64 for URL rfc4648 which js atob not support
@@ -585,15 +750,13 @@ function base64ToArrayBuffer(base64Str) {
 		const arryBuffer = Uint8Array.from(decode, (c) => c.charCodeAt(0));
 		return { earlyData: arryBuffer.buffer, error: null };
 	} catch (error) {
-		return { earlyData: null, error };
+		return { error };
 	}
 }
 
 /**
- * Checks if a given string is a valid UUID.
- * Note: This is not a real UUID validation.
- * @param {string} uuid The string to validate as a UUID.
- * @returns {boolean} True if the string is a valid UUID, false otherwise.
+ * This is not real UUID validation
+ * @param {string} uuid 
  */
 function isValidUUID(uuid) {
 	const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -603,8 +766,8 @@ function isValidUUID(uuid) {
 const WS_READY_STATE_OPEN = 1;
 const WS_READY_STATE_CLOSING = 2;
 /**
- * Closes a WebSocket connection safely without throwing exceptions.
- * @param {import("@cloudflare/workers-types").WebSocket} socket The WebSocket connection to close.
+ * Normally, WebSocket will not has exceptions when close.
+ * @param {import("@cloudflare/workers-types").WebSocket} socket
  */
 function safeCloseWebSocket(socket) {
 	try {
@@ -617,15 +780,12 @@ function safeCloseWebSocket(socket) {
 }
 
 const byteToHex = [];
-
 for (let i = 0; i < 256; ++i) {
 	byteToHex.push((i + 256).toString(16).slice(1));
 }
-
 function unsafeStringify(arr, offset = 0) {
 	return (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase();
 }
-
 function stringify(arr, offset = 0) {
 	const uuid = unsafeStringify(arr, offset);
 	if (!isValidUUID(uuid)) {
@@ -636,11 +796,10 @@ function stringify(arr, offset = 0) {
 
 
 /**
- * Handles outbound UDP traffic by transforming the data into DNS queries and sending them over a WebSocket connection.
- * @param {import("@cloudflare/workers-types").WebSocket} webSocket The WebSocket connection to send the DNS queries over.
- * @param {ArrayBuffer} vlessResponseHeader The VLESS response header.
- * @param {(string) => void} log The logging function.
- * @returns {{write: (chunk: Uint8Array) => void}} An object with a write method that accepts a Uint8Array chunk to write to the transform stream.
+ * 
+ * @param {import("@cloudflare/workers-types").WebSocket} webSocket 
+ * @param {ArrayBuffer} vlessResponseHeader 
+ * @param {(string)=> void} log 
  */
 async function handleUDPOutBound(webSocket, vlessResponseHeader, log) {
 
@@ -669,7 +828,7 @@ async function handleUDPOutBound(webSocket, vlessResponseHeader, log) {
 	// only handle dns udp for now
 	transformStream.readable.pipeTo(new WritableStream({
 		async write(chunk) {
-			const resp = await fetch(dohURL, // dns server url
+			const resp = await fetch('https://serverless-dns.deno.dev',
 				{
 					method: 'POST',
 					headers: {
@@ -709,163 +868,65 @@ async function handleUDPOutBound(webSocket, vlessResponseHeader, log) {
 }
 
 /**
- *
- * @param {string} userID - single or comma separated userIDs
+ * 
+ * @param {string} userID 
  * @param {string | null} hostName
  * @returns {string}
  */
-function getVLESSConfig(userIDs, hostName) {
-	const commonUrlPart = `:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}`;
-	const separator = "---------------------------------------------------------------";
-	const hashSeparator = "################################################################";
-
-	// Split the userIDs into an array
-	let userIDArray = userIDs.split(',');
-
-	// Prepare output array
-	let output = [];
-	let header = [];
-	const clash_link = `https://subconverter.do.xn--b6gac.eu.org/sub?target=clash&url=https://${hostName}/sub/${userIDArray[0]}?format=clash&insert=false&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
-	header.push(`\n<p align="center"><img src="https://cloudflare-ipfs.com/ipfs/bafybeigd6i5aavwpr6wvnwuyayklq3omonggta4x2q7kpmgafj357nkcky" alt="图片描述" style="margin-bottom: -50px;">`);
-	header.push(`\n<b style=" font-size: 15px;" >Welcome! This function generates configuration for VLESS protocol. If you found this useful, please check our GitHub project for more:</b>\n`);
-	header.push(`<b style=" font-size: 15px;" >欢迎！这是生成 VLESS 协议的配置。如果您发现这个项目很好用，请查看我们的 GitHub 项目给我一个star：</b>\n`);
-	header.push(`\n<a href="https://github.com/3Kmfi6HP/EDtunnel" target="_blank">EDtunnel - https://github.com/3Kmfi6HP/EDtunnel</a>\n`);
-	header.push(`\n<iframe src="https://ghbtns.com/github-btn.html?user=USERNAME&repo=REPOSITORY&type=star&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>\n\n`.replace(/USERNAME/g, "3Kmfi6HP").replace(/REPOSITORY/g, "EDtunnel"));
-	header.push(`<a href="//${hostName}/sub/${userIDArray[0]}" target="_blank">VLESS 节点订阅连接</a>\n<a href="clash://install-config?url=${encodeURIComponent(clash_link)}" target="_blank">Clash 节点订阅连接</a>\n<a href="${clash_link}" target="_blank">Clash 节点订阅连接2</a></p>\n`);
-	header.push(``);
-
-	// Generate output string for each userID
-	userIDArray.forEach((userID) => {
-		const vlessMain = `vless://${userID}@${hostName}${commonUrlPart}`;
-		const vlessSec = `vless://${userID}@${proxyIP}${commonUrlPart}`;
-		output.push(`UUID: ${userID}`);
-		output.push(`${hashSeparator}\nv2ray default ip\n${separator}\n${vlessMain}\n${separator}`);
-		output.push(`${hashSeparator}\nv2ray with best ip\n${separator}\n${vlessSec}\n${separator}`);
-	});
-	output.push(`${hashSeparator}\n# Clash Proxy Provider 配置格式(configuration format)\nproxy-groups:\n  - name: UseProvider\n	type: select\n	use:\n	  - provider1\n	proxies:\n	  - Proxy\n	  - DIRECT\nproxy-providers:\n  provider1:\n	type: http\n	url: https://${hostName}/sub/${userIDArray[0]}?format=clash\n	interval: 3600\n	path: ./provider1.yaml\n	health-check:\n	  enable: true\n	  interval: 600\n	  # lazy: true\n	  url: http://www.gstatic.com/generate_204\n\n${hashSeparator}`);
-
-	// HTML Head with CSS
-	const htmlHead = `
-    <head>
-        <title>EDtunnel: VLESS configuration</title>
-        <meta name="description" content="This is a tool for generating VLESS protocol configurations. Give us a star on GitHub https://github.com/3Kmfi6HP/EDtunnel if you found it useful!">
-		<meta name="keywords" content="EDtunnel, cloudflare pages, cloudflare worker, severless">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta property="og:site_name" content="EDtunnel: VLESS configuration" />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="EDtunnel - VLESS configuration and subscribe output" />
-        <meta property="og:description" content="Use cloudflare pages and worker severless to implement vless protocol" />
-        <meta property="og:url" content="https://${hostName}/" />
-        <meta property="og:image" content="https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(`vless://${userIDs.split(',')[0]}@${hostName}${commonUrlPart}`)}" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="EDtunnel - VLESS configuration and subscribe output" />
-        <meta name="twitter:description" content="Use cloudflare pages and worker severless to implement vless protocol" />
-        <meta name="twitter:url" content="https://${hostName}/" />
-        <meta name="twitter:image" content="https://cloudflare-ipfs.com/ipfs/bafybeigd6i5aavwpr6wvnwuyayklq3omonggta4x2q7kpmgafj357nkcky" />
-        <meta property="og:image:width" content="1500" />
-        <meta property="og:image:height" content="1500" />
-
-        <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
-            padding: 10px;
-        }
-
-        a {
-            color: #1a0dab;
-            text-decoration: none;
-        }
-		img {
-			max-width: 100%;
-			height: auto;
-		}
-		
-        pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin: 10px 0;
-        }
-		/* Dark mode */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #333;
-                color: #f0f0f0;
-            }
-
-            a {
-                color: #9db4ff;
-            }
-
-            pre {
-                background-color: #282a36;
-                border-color: #6272a4;
-            }
-        }
-        </style>
-    </head>
-    `;
-
-	// Join output with newlines, wrap inside <html> and <body>
+function getVLESSConfig(userID, hostName) {
+	const vlessMain = `vless://${userID}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}`
 	return `
-    <html>
-    ${htmlHead}
-    <body>
-    <pre style="
-    background-color: transparent;
-    border: none;
-">${header.join('')}</pre><pre>${output.join('\n')}</pre>
-    </body>
-</html>`;
+################################################################
+v2ray
+---------------------------------------------------------------
+${vlessMain}
+---------------------------------------------------------------
+################################################################
+clash-meta
+---------------------------------------------------------------
+- type: vless
+  name: ${hostName}
+  server: ${hostName}
+  port: 443
+  uuid: ${userID}
+  network: ws
+  tls: true
+  udp: false
+  sni: ${hostName}
+  client-fingerprint: chrome
+  ws-opts:
+    path: "/?ed=2048"
+    headers:
+      host: ${hostName}
+---------------------------------------------------------------
+################################################################
+`;
 }
 
+//#region help method
+async function hmac_rec2(data, keyList) {
+	const digest = 'SHA-256', blockSizeOfDigest = 64
+	var key = keyList.pop()
+	if (keyList.length > 0) {
+		let k = null;
+		// adjust key (according to HMAC specification)
+		if (key.length > blockSizeOfDigest) { k = Buffer.allocUnsafe(blockSizeOfDigest).fill('\x00'); (await hmac_rec2(key, [...keyList])).copy(k) }
+		else if (key.length < blockSizeOfDigest) { k = Buffer.allocUnsafe(blockSizeOfDigest).fill('\x00'); key.copy(k) }
+		else k = key
+		// create 'key xor ipad' and 'key xor opad' (according to HMAC specification)  
+		var ik = Buffer.allocUnsafe(blockSizeOfDigest), ok = Buffer.allocUnsafe(blockSizeOfDigest)
+		k.copy(ik); k.copy(ok)
+		for (var i = 0; i < ik.length; i++) { ik[i] = 0x36 ^ ik[i]; ok[i] = 0x5c ^ ok[i] }
+		// calculate HMac(HMac)
+		var innerHMac = await hmac_rec2(Buffer.concat([ik, data]), [...keyList])
+		var hMac = await hmac_rec2(Buffer.concat([ok, innerHMac]), [...keyList])
+	} else {
+		// calculate regular HMac(Hash)
+		var keyMaterial = await crypto.subtle.importKey('raw', key, { name: 'HMAC', hash: digest }, false, ['sign']);
+		var hMac = Buffer.from(await crypto.subtle.sign('HMAC', keyMaterial, data));
 
-function createVLESSSub(userID_Path, hostName) {
-	let portArray_http = [80, 8080, 8880, 2052, 2086, 2095, 2082];
-	let portArray_https = [443, 8443, 2053, 2096, 2087, 2083];
-
-	// Split the userIDs into an array
-	let userIDArray = userID_Path.includes(',') ? userID_Path.split(',') : [userID_Path];
-
-	// Prepare output array
-	let output = [];
-
-	// Generate output string for each userID
-	userIDArray.forEach((userID) => {
-		// Check if the hostName is a Cloudflare Pages domain, if not, generate HTTP configurations
-		// reasons: pages.dev not support http only https
-		if (!hostName.includes('pages.dev')) {
-			// Iterate over all ports for http
-			portArray_http.forEach((port) => {
-				const commonUrlPart_http = `:${port}?encryption=none&security=none&fp=random&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}-HTTP-${port}`;
-				const vlessMainHttp = `vless://${userID}@${hostName}${commonUrlPart_http}`;
-
-				// For each proxy IP, generate a VLESS configuration and add to output
-				proxyIPs.forEach((proxyIP) => {
-					const vlessSecHttp = `vless://${userID}@${proxyIP}${commonUrlPart_http}-${proxyIP}-EDtunnel`;
-					output.push(`${vlessMainHttp}`);
-					output.push(`${vlessSecHttp}`);
-				});
-			});
-		}
-		// Iterate over all ports for https
-		portArray_https.forEach((port) => {
-			const commonUrlPart_https = `:${port}?encryption=none&security=tls&sni=${hostName}&fp=random&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}-HTTPS-${port}`;
-			const vlessMainHttps = `vless://${userID}@${hostName}${commonUrlPart_https}`;
-
-			// For each proxy IP, generate a VLESS configuration and add to output
-			proxyIPs.forEach((proxyIP) => {
-				const vlessSecHttps = `vless://${userID}@${proxyIP}${commonUrlPart_https}-${proxyIP}-EDtunnel`;
-				output.push(`${vlessMainHttps}`);
-				output.push(`${vlessSecHttps}`);
-			});
-		});
-	});
-
-	// Join output with newlines
-	return output.join('\n');
+	}
+	return hMac
 }
+//#endregion
+
