@@ -1,7 +1,7 @@
 import { connect } from 'cloudflare:sockets';
 
 let userID = 'd342d11e-d424-4583-b36e-524ab1f0afa4';
-let proxyIPs = ['45.60.186.91:587'];
+let proxyIPs = ['103.180.161.123:587'];
 let proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
 let proxyPort = proxyIP.includes(':') ? proxyIP.split(':')[1] : '443';
 
@@ -475,25 +475,8 @@ function getVLESSConfig(userID, hostName) {
 	const vlessMain4 = `vless://${userID}\u0040104.17.3.81:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#EDUKASI`
 	const vlessMain5 = `vless://${userID}\u0040Www.sushiroll.co.id:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#SUSHIROLL`
 	const vlessMain6 = `vless://${userID}\u0040zoomcares.zoom.us:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#CONFERENSI`
-	const vlessMain7 = `vless://${userID}\u0040162.159.138.78:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#BYU`
 	return `
 ################################################################
-
-================================================================
-           SILAHKAN COPY AKUN YG MAU ANDA GUNAKAN
-================================================================
-
-
-WHATSAPP ID: 083117530527
-    https://wa.link/d982tb
-
-
- COPY DIBAWAH UNTUK AMBIL AKUN ANDA LAGI
- COPY :      http://${hostName}/cf
-================================================================
-                   COPY DI BAWAH
-================================================================
-
 AKUN TANPA EDIT
 ---------------------------------------------------------------
 ${vlessMain}
@@ -525,12 +508,9 @@ ${vlessMain6}
 AKUN GAME
 ---------------------------------------------------------------
 ${vlessMain3}
+
 ---------------------------------------------------------------
 
-AKUN BYU
----------------------------------------------------------------
-${vlessMain7}
----------------------------------------------------------------
 
 
 ################################################################
@@ -552,13 +532,16 @@ clash-meta
       host: ${hostName}
 ---------------------------------------------------------------
 ################################################################
+HUB PENYEDIA LAYANAN KLIK DI BAWAH
 
 
+WHATSAPP ID: 083117530527
+    https://wa.link/d982tb
 
-
-
-             SELAMAT BERSENANG-SENANG
-
+================================================================
+ COPY DI BAWAH UNTUK CEK AKUN KEMBALI
+================================================================
+ COPY :  ${hostName}/${userID}
 
 `;
 }
