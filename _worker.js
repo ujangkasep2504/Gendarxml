@@ -2,7 +2,12 @@ import { connect } from "cloudflare:sockets";
 
 let isApiReady = false;
 let proxyIP = "172.232.239.175:587";
-let cachedProxyList = [];
+let cachedProxyList = [
+  { path: "/MALASIA", proxy: "45.195.69.98:30726" },
+  { path: "/INDONESIA", proxy: "103.186.1.209:2053" },
+  { path: "/SINGAPORE", proxy: "143.198.213.197:8443" },
+  // tambahkan sendiri
+];
 
 async function getProxyList() {
   const proxyBankUrl = "https://raw.githubusercontent.com/jaka2m/worker/main/output.txt"; // Tetap menggunakan proxyBankUrl
