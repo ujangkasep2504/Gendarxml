@@ -1,4 +1,4 @@
-name: Proxy Scanner
+upname: Proxy Scanner
 
 on:
   workflow_dispatch:
