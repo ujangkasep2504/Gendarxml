@@ -5,7 +5,7 @@ let proxyIP = "103.186.1.209:2053";
 let cachedProxyList = [];
 
 async function getProxyList() {
-  const proxyBankUrl = "https://raw.githubusercontent.com/jaka2m/worker/main/output.txt"; // Tetap menggunakan proxyBankUrl
+  const proxyBankUrl = "https://raw.githubusercontent.com/mrsbrds/vless2/refs/heads/main/proxyList.txt"; // Tetap menggunakan proxyBankUrl
   try {
     const proxyBank = await fetch(proxyBankUrl);
     if (proxyBank.status === 200) {
