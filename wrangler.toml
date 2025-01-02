@@ -5,6 +5,46 @@ name = "premium" # todo
 main = "_worker.js"
 compatibility_date = "2023-05-26"
 
+[[routes]]
+pattern = "lontongsayur.us.kg"
+custom_domain = true
+[[routes]]
+pattern = "ava.game.naver.com.lontongsayur.us.kg"
+custom_domain = true
+[[routes]]
+pattern = "graph.instagram.com.lontongsayur.us.kg"
+custom_domain = true
+[[routes]]
+pattern = "quiz.int.vidio.com.lontongsayur.us.kg"
+custom_domain = true
+[[routes]]
+pattern = "live.iflix.com.lontongsayur.us.kg"
+custom_domain = true
+[[routes]]
+pattern = "support.zoom.us.lontongsayur.us.kg"
+custom_domain = true
+[[routes]]
+pattern = "blog.webex.com.lontongsayur.us.kg"
+custom_domain = true
+[[routes]]
+pattern = "investors.spotify.com.lontongsayur.us.kg"
+custom_domain = true
+[[routes]]
+pattern = "cache.netflix.com.lontongsayur.us.kg"
+custom_domain = true
+[[routes]]
+pattern = "zaintest.vuclip.com.lontongsayur.us.kg"
+custom_domain = true
+[[routes]]
+pattern = "ads.ruangguru.com.lontongsayur.us.kg"
+custom_domain = true
+[[routes]]
+pattern = "business.blibli.com.lontongsayur.us.kg"
+custom_domain = true
+[[routes]]
+pattern = "api.midtrans.com.lontongsayur.us.kg"
+custom_domain = true
+
 [vars]
 # UUID = "d342d11e-d424-4583-b36e-524ab1f0afa4"
 # PROXYIP = "1.2.3.4"
@@ -12,3 +52,4 @@ compatibility_date = "2023-05-26"
 # NODE_ID = "1"
 # API_TOKEN = "example_dev_token"
 # API_HOST = "api.v2board.com"
+PROXY_BANK_URL = "https://raw.githubusercontent.com/FoolVPN-ID/Nautica/refs/heads/main/proxyList.txt"
