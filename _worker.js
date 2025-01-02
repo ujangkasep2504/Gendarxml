@@ -120,7 +120,7 @@ function getAllConfig(request, hostName, proxyList, page = 0) {
 
       const { proxyIP, proxyPort, country, org } = proxy;
       const ipPort = `${proxyIP}:${proxyPort}`;
-      const Status = `https://ipcf.vlessipcf.us.kg/key=geo/ip=${proxyIP}:${proxyPort}`;
+      const StatusURL = 'https://bakosuper.us.kg/check?target=${ip}:${port};`;
 
       const uriWithPath = new URL(uri);
       uriWithPath.searchParams.set("path", `/${proxyIP}-${proxyPort}`);
