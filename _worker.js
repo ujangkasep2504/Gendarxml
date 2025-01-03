@@ -120,7 +120,7 @@ function getAllConfig(request, hostName, proxyList, page = 0) {
 
       const { proxyIP, proxyPort, country, org } = proxy;
       const ipPort = `${proxyIP}:${proxyPort}`;
-      const StatusURL = 'https://lontongsayur.us.kg/check?target=${ip}:${port};`;
+      const StatusURL = 'https://ipcf.vlessipcf.us.kg/key=nana/ip=${ip}:${port};';
 
       const uriWithPath = new URL(uri);
       uriWithPath.searchParams.set("path", `/${proxyIP}-${proxyPort}`);
