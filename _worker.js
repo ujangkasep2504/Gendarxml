@@ -5,7 +5,7 @@ let proxyIP = "103.186.1.209:2053";
 let cachedProxyList = [];
 
 async function getProxyList() {
-  const proxyBankUrl = "https://raw.githubusercontent.com/mrsbrds/vless2/refs/heads/main/proxyList.txt"; // Tetap menggunakan proxyBankUrl
+  const proxyBankUrl = "https://raw.githubusercontent.com/jaka2m/worker/main/output.txt"; // Tetap menggunakan proxyBankUrl
   try {
     const proxyBank = await fetch(proxyBankUrl);
     if (proxyBank.status === 200) {
@@ -63,7 +63,7 @@ function getAllConfig(request, hostName, proxyList, page = 0) {
 <html lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geo Project</title>
+    <title>Premium</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -120,7 +120,7 @@ function getAllConfig(request, hostName, proxyList, page = 0) {
 
       const { proxyIP, proxyPort, country, org } = proxy;
       const ipPort = `${proxyIP}:${proxyPort}`;
-      const StatusURL = 'https://ipcf.vlessipcf.us.kg/key=nana/ip=${ip}:${port};';
+      const Status = `https://ipcf.vlessipcf.us.kg/key=geo/ip=${proxyIP}:${proxyPort}`;
 
       const uriWithPath = new URL(uri);
       uriWithPath.searchParams.set("path", `/${proxyIP}-${proxyPort}`);
